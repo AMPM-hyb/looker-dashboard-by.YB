@@ -1,0 +1,2860 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>루커 비주얼라이저 ver3.0 | made by 영빈</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
+
+:root {
+  --bg: #f5f5f7;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card2: #f5f5f7;
+  --border: #d2d2d7;
+  --border-light: #e8e8ed;
+  --text: #1d1d1f;
+  --subtext: #6e6e73;
+  --subtext2: #86868b;
+  --accent: #0071e3;
+  --accent-hover: #0077ed;
+  --accent-light: #e8f0fe;
+  --up: #1d7340;
+  --up-bg: #e3f4e9;
+  --down: #c62828;
+  --down-bg: #fde8e8;
+  --neutral: #6e6e73;
+  --meta: #1877f2;
+  --meta-bg: #e7f0fd;
+  --google: #4285f4;
+  --google-bg: #e8f0fe;
+  --naver: #03c75a;
+  --naver-bg: #e3f9ed;
+  --shadow-sm: 0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md: 0 4px 16px rgba(0,0,0,.07), 0 1px 4px rgba(0,0,0,.04);
+  --shadow-lg: 0 8px 32px rgba(0,0,0,.09), 0 2px 8px rgba(0,0,0,.05);
+  --radius: 18px;
+  --radius-sm: 10px;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+
+/* ── 업로드 가이드 팝업 ── */
+#guide-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+#guide-modal.open { display: flex; }
+
+.guide-card {
+  background: #fff;
+  border-radius: 20px;
+  width: 100%;
+  max-width: 720px;
+  max-height: 85vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+
+.guide-header {
+  padding: 28px 32px 20px;
+  border-bottom: 1px solid #e8e8ed;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky;
+  top: 0;
+  background: #fff;
+  z-index: 1;
+}
+
+.guide-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+}
+
+.guide-close {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: #f5f5f7;
+  cursor: pointer;
+  font-size: 16px;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .2s;
+}
+
+.guide-close:hover { background: #e8e8ed; }
+
+.guide-body { padding: 24px 32px 32px; }
+
+.guide-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.guide-tab {
+  flex: 1;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1.5px solid #d2d2d7;
+  background: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  color: #6e6e73;
+}
+
+.guide-tab.active-commerce {
+  background: #e8f0fe;
+  border-color: #0071e3;
+  color: #0071e3;
+}
+
+.guide-tab.active-db {
+  background: #e8fdf0;
+  border-color: #1d7340;
+  color: #1d7340;
+}
+
+.guide-panel { display: none; }
+.guide-panel.active { display: block; }
+
+.guide-media-section {
+  margin-bottom: 24px;
+  border: 1px solid #e8e8ed;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.guide-media-header {
+  padding: 12px 16px;
+  font-size: 13px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-media-header.meta { background: #e7f0fd; color: #1877f2; }
+.guide-media-header.google { background: #e8f0fe; color: #4285f4; }
+.guide-media-header.naver { background: #e3f9ed; color: #03c75a; }
+
+.guide-cols {
+  padding: 14px 16px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.guide-col-tag {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 100px;
+  background: #f5f5f7;
+  color: #1d1d1f;
+  border: 1px solid #e8e8ed;
+}
+
+.guide-col-tag.required {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.guide-col-tag.key {
+  background: #fde8e8;
+  border-color: #f5c6c6;
+  color: #c62828;
+}
+
+.guide-note {
+  padding: 10px 16px;
+  background: #f5f5f7;
+  font-size: 12px;
+  color: #6e6e73;
+  line-height: 1.6;
+  border-top: 1px solid #e8e8ed;
+}
+
+.guide-badge {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 4px;
+  font-weight: 700;
+}
+
+.badge-required { background: #fff3cd; color: #856404; }
+.badge-key { background: #fde8e8; color: #c62828; }
+
+
+/* ── 주차/월별 토글 ── */
+.period-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f5f5f7;
+  border-radius: 8px;
+  padding: 3px;
+  margin-left: 12px;
+}
+
+.period-toggle-btn {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 5px 12px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  font-family: 'Pretendard', sans-serif;
+  background: transparent;
+  color: #6e6e73;
+  transition: all .2s;
+}
+
+.period-toggle-btn.active {
+  background: #fff;
+  color: #1d1d1f;
+  box-shadow: 0 1px 4px rgba(0,0,0,.1);
+}
+
+.week-tabs-wrap {
+  background: var(--surface);
+  padding: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.week-tabs-wrap::-webkit-scrollbar { display: none; }
+
+.week-tab {
+  font-size: 12px;
+  font-weight: 500;
+  padding: 10px 14px;
+  color: var(--subtext);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.week-tab:hover { color: var(--text); }
+.week-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* PDF 저장 모달 */
+#pdf-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,.5);
+  z-index: 9000;
+  align-items: center;
+  justify-content: center;
+}
+
+#pdf-modal.open { display: flex; }
+
+.pdf-modal-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 40px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,.2);
+}
+
+.pdf-modal-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1d1d1f;
+  margin-bottom: 8px;
+}
+
+.pdf-modal-desc {
+  font-size: 13px;
+  color: #6e6e73;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.pdf-progress {
+  width: 100%;
+  height: 6px;
+  background: #f5f5f7;
+  border-radius: 100px;
+  overflow: hidden;
+  margin-bottom: 16px;
+  display: none;
+}
+
+.pdf-progress-bar {
+  height: 100%;
+  background: #0071e3;
+  border-radius: 100px;
+  width: 0%;
+  transition: width .3s;
+}
+
+.pdf-modal-status {
+  font-size: 12px;
+  color: #86868b;
+  margin-bottom: 20px;
+  min-height: 18px;
+}
+
+.pdf-option-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pdf-option {
+  border: 1.5px solid #d2d2d7;
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all .2s;
+  text-align: center;
+}
+
+.pdf-option:hover { border-color: #0071e3; }
+.pdf-option.selected { border-color: #0071e3; background: #e8f0fe; }
+.pdf-option-icon { font-size: 24px; margin-bottom: 6px; }
+.pdf-option-label { font-size: 12px; font-weight: 600; color: #1d1d1f; }
+.pdf-option-sub { font-size: 11px; color: #6e6e73; }
+
+.pdf-start-btn {
+  width: 100%;
+  background: #0071e3;
+  color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 10px;
+}
+
+.pdf-start-btn:hover { background: #0077ed; }
+.pdf-start-btn:disabled { background: #d2d2d7; cursor: not-allowed; }
+
+.pdf-cancel-btn {
+  width: 100%;
+  background: transparent;
+  color: #6e6e73;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── 업로드 화면 ── */
+#upload-screen {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 24px;
+  background: linear-gradient(180deg, #fbfbfd 0%, #f5f5f7 100%);
+}
+
+.upload-hero {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.upload-eyebrow {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.upload-title {
+  font-family: 'Pretendard', sans-serif;
+  font-size: clamp(32px, 5vw, 52px);
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1.1;
+  letter-spacing: -.02em;
+  margin-bottom: 16px;
+}
+
+.upload-desc {
+  font-size: 17px;
+  color: var(--subtext);
+  font-weight: 300;
+  max-width: 480px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+.upload-card {
+  width: 100%;
+  max-width: 580px;
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: var(--shadow-lg);
+  padding: 48px 40px;
+  text-align: center;
+}
+
+.upload-zone {
+  border: 2px dashed var(--border);
+  border-radius: var(--radius);
+  padding: 48px 32px;
+  cursor: pointer;
+  transition: all .25s;
+  margin-bottom: 24px;
+}
+
+.upload-zone:hover, .upload-zone.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.upload-icon-wrap {
+  width: 64px; height: 64px;
+  background: var(--bg);
+  border-radius: 16px;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px;
+  font-size: 28px;
+}
+
+.upload-zone-title {
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.upload-zone-desc {
+  font-size: 13px;
+  color: var(--subtext);
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+.upload-cta {
+  display: inline-block;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  padding: 10px 28px;
+  border-radius: 100px;
+  cursor: pointer;
+  border: none;
+  transition: all .2s;
+}
+
+.upload-cta:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 16px rgba(0,113,227,.3);
+}
+
+#file-input { display: none; }
+
+.file-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.file-slot {
+  background: var(--bg);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 14px 12px;
+  text-align: center;
+  transition: all .2s;
+}
+
+.file-slot.loaded {
+  border-color: var(--accent);
+  background: var(--accent-light);
+}
+
+.slot-icon { font-size: 20px; margin-bottom: 6px; }
+.slot-name { font-size: 11px; font-weight: 600; color: var(--subtext); }
+.slot-status { font-size: 10px; color: var(--subtext2); margin-top: 3px; }
+.file-slot.loaded .slot-status { color: var(--accent); }
+
+.analyze-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 16px;
+  padding: 14px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  opacity: .4;
+  pointer-events: none;
+}
+
+.analyze-btn.ready {
+  opacity: 1;
+  pointer-events: all;
+}
+
+.analyze-btn.ready:hover {
+  background: var(--accent-hover);
+  box-shadow: 0 4px 20px rgba(0,113,227,.3);
+}
+
+.upload-note {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--subtext2);
+  line-height: 1.6;
+}
+
+/* ── 대시보드 ── */
+#dashboard { display: none; }
+
+/* 상단 네비 */
+.top-nav {
+  background: rgba(255,255,255,.85);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 52px;
+  position: sticky;
+  top: 0;
+  z-index: 200;
+}
+
+.nav-left { display: flex; align-items: center; gap: 20px; }
+
+.nav-logo {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.nav-client {
+  font-size: 13px;
+  color: var(--subtext);
+  padding: 3px 12px;
+  background: var(--bg);
+  border-radius: 100px;
+  border: 1px solid var(--border-light);
+}
+
+.nav-right { display: flex; align-items: center; gap: 10px; }
+
+.nav-btn {
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 16px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+}
+
+.nav-btn-primary {
+  background: var(--accent);
+  color: #fff;
+}
+
+.nav-btn-primary:hover { background: var(--accent-hover); }
+
+.nav-btn-ghost {
+  background: transparent;
+  color: var(--subtext);
+  border: 1px solid var(--border);
+}
+
+.nav-btn-ghost:hover { color: var(--text); border-color: var(--subtext); }
+
+/* 월 선택 탭 */
+.month-tab-bar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border-light);
+  padding: 0 32px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+}
+
+.month-tab {
+  font-size: 13px;
+  font-weight: 500;
+  padding: 14px 20px;
+  color: var(--subtext);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  transition: all .2s;
+  white-space: nowrap;
+  background: none;
+  border-top: none;
+  border-left: none;
+  border-right: none;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.month-tab:hover { color: var(--text); }
+.month-tab.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 600; }
+
+/* 매체 탭 */
+.media-tab-bar {
+  padding: 24px 32px 0;
+  display: flex;
+  gap: 8px;
+}
+
+.media-tab {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 8px 18px;
+  border-radius: 100px;
+  cursor: pointer;
+  border: 1.5px solid var(--border);
+  background: var(--surface);
+  color: var(--subtext);
+  transition: all .2s;
+  font-family: 'Pretendard', sans-serif;
+}
+
+.media-tab:hover { border-color: var(--subtext); color: var(--text); }
+.media-tab.active-meta { background: var(--meta-bg); border-color: var(--meta); color: var(--meta); }
+.media-tab.active-google { background: var(--google-bg); border-color: var(--google); color: var(--google); }
+.media-tab.active-naver { background: var(--naver-bg); border-color: var(--naver); color: var(--naver); }
+
+.media-dot {
+  width: 8px; height: 8px;
+  border-radius: 50%;
+}
+
+/* 메인 바디 */
+.dash-body {
+  padding: 28px 32px 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* 섹션 헤더 */
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+  margin-top: 36px;
+}
+
+.section-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text);
+  letter-spacing: -.01em;
+}
+
+.section-sub {
+  font-size: 13px;
+  color: var(--subtext2);
+}
+
+/* Summary Cards */
+.kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.kpi-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  transition: box-shadow .2s, transform .2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.kpi-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--subtext);
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.kpi-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+  letter-spacing: -.02em;
+  margin-bottom: 6px;
+}
+
+.kpi-unit {
+  font-size: 11px;
+  color: var(--subtext2);
+  margin-bottom: 10px;
+}
+
+.kpi-diff {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 100px;
+}
+
+.kpi-diff.up { background: var(--up-bg); color: var(--up); }
+.kpi-diff.dn { background: var(--down-bg); color: var(--down); }
+.kpi-diff.nc { background: var(--bg); color: var(--neutral); }
+
+/* 차트 그리드 */
+.chart-grid-2 {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-grid-equal {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.chart-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+}
+
+.chart-card-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.chart-card-sub {
+  font-size: 12px;
+  color: var(--subtext2);
+  margin-bottom: 20px;
+}
+
+canvas { max-height: 220px; }
+
+/* 테이블 */
+.table-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 0;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.table-header {
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.table-title { font-size: 15px; font-weight: 600; color: var(--text); }
+.table-sub { font-size: 12px; color: var(--subtext2); margin-top: 2px; }
+
+.table-wrap { overflow-x: auto; }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+thead th {
+  text-align: left;
+  padding: 10px 16px;
+  background: var(--bg);
+  color: var(--subtext);
+  font-weight: 600;
+  font-size: 11px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border-bottom: 1px solid var(--border-light);
+}
+
+tbody tr {
+  border-bottom: 1px solid var(--border-light);
+  transition: background .12s;
+}
+
+tbody tr:last-child { border-bottom: none; }
+tbody tr:hover { background: #fafafa; }
+
+tbody td {
+  padding: 11px 16px;
+  color: var(--text);
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.num { font-variant-numeric: tabular-nums; }
+.up-text { color: var(--up); font-weight: 600; }
+.dn-text { color: var(--down); font-weight: 600; }
+
+.rank-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px; height: 22px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.rank-1 { background: #fff3cd; color: #856404; }
+.rank-2 { background: #e9ecef; color: #495057; }
+.rank-3 { background: #fde5d4; color: #7d3a14; }
+.rank-n { background: var(--bg); color: var(--subtext); }
+
+.media-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 4px;
+  letter-spacing: .03em;
+}
+
+.badge-meta { background: var(--meta-bg); color: var(--meta); }
+.badge-google { background: var(--google-bg); color: var(--google); }
+.badge-naver { background: var(--naver-bg); color: var(--naver); }
+
+/* 키워드 랭킹 (네이버/구글) */
+.keyword-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.kw-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.kw-item:last-child { border-bottom: none; }
+.kw-rank { font-size: 13px; font-weight: 700; color: var(--subtext2); min-width: 20px; }
+.kw-name { font-size: 13px; font-weight: 500; color: var(--text); flex: 1; }
+.kw-metrics { text-align: right; }
+.kw-main { font-size: 13px; font-weight: 600; color: var(--text); }
+.kw-sub { font-size: 11px; color: var(--subtext2); }
+
+/* 인사이트 */
+.insight-card {
+  background: var(--surface);
+  border-radius: var(--radius);
+  padding: 28px 28px;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-light);
+  margin-bottom: 16px;
+}
+
+.insight-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  margin-bottom: 20px;
+}
+
+.insight-icon-wrap {
+  width: 40px; height: 40px;
+  background: var(--accent-light);
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.insight-heading { font-size: 17px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+.insight-period { font-size: 12px; color: var(--subtext2); }
+
+.insight-divider { height: 1px; background: var(--border-light); margin-bottom: 20px; }
+
+.insight-items { display: flex; flex-direction: column; gap: 14px; }
+
+.insight-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.insight-num {
+  width: 22px; height: 22px;
+  background: var(--bg);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--subtext);
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.insight-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+}
+
+.insight-text strong { color: var(--accent); font-weight: 600; }
+.insight-text .pos { color: var(--up); font-weight: 600; }
+.insight-text .neg { color: var(--down); font-weight: 600; }
+
+/* 비교 배너 */
+.compare-banner {
+  background: var(--surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius);
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+.compare-period {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+}
+
+.cp-box { text-align: center; }
+.cp-label { font-size: 10px; font-weight: 600; color: var(--subtext2); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 3px; }
+.cp-val { font-size: 15px; font-weight: 600; color: var(--text); }
+.cp-this .cp-val { color: var(--accent); }
+.cp-arrow { font-size: 18px; color: var(--border); }
+
+/* 로딩 */
+#loading {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(255,255,255,.9);
+  backdrop-filter: blur(8px);
+  z-index: 999;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading-ring {
+  width: 40px; height: 40px;
+  border: 3px solid var(--border-light);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { font-size: 14px; color: var(--subtext); font-weight: 500; }
+
+/* 미디어 컨텐츠 패널 */
+.media-panel { display: none; }
+.media-panel.active { display: block; }
+
+/* PDF */
+@media print {
+  .top-nav .nav-btn, .month-tab-bar, .media-tab-bar { display: none; }
+  .dash-body { padding: 20px; }
+  body { background: #fff; }
+}
+
+@media (max-width: 900px) {
+  .chart-grid-2, .chart-grid-equal, .keyword-grid { grid-template-columns: 1fr; }
+  .chart-grid-3 { grid-template-columns: 1fr 1fr; }
+  .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+  .dash-body { padding: 16px; }
+  .top-nav, .month-tab-bar { padding: 0 16px; }
+}
+</style>
+<style>
+/* ── 비밀번호 게이트 ── */
+#pw-gate {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, #fbfbfd 0%, #f0f0f5 100%);
+  z-index: 99999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+}
+
+.pw-card {
+  background: #fff;
+  border-radius: 24px;
+  box-shadow: 0 8px 40px rgba(0,0,0,.1);
+  padding: 52px 44px;
+  width: 100%;
+  max-width: 400px;
+  text-align: center;
+}
+
+.pw-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: #0071e3;
+  margin-bottom: 16px;
+}
+
+.pw-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: #1d1d1f;
+  letter-spacing: -.02em;
+  margin-bottom: 8px;
+}
+
+.pw-desc {
+  font-size: 13px;
+  color: #6e6e73;
+  margin-bottom: 28px;
+  line-height: 1.6;
+}
+
+.pw-input {
+  width: 100%;
+  padding: 13px 16px;
+  border: 1.5px solid #d2d2d7;
+  border-radius: 10px;
+  font-size: 16px;
+  font-family: 'Pretendard', sans-serif;
+  color: #1d1d1f;
+  outline: none;
+  margin-bottom: 12px;
+  text-align: center;
+  letter-spacing: .2em;
+  transition: border-color .2s;
+}
+
+.pw-input:focus { border-color: #0071e3; }
+.pw-input.error { border-color: #c62828; animation: shake .3s; }
+
+@keyframes shake {
+  0%,100% { transform: translateX(0); }
+  25% { transform: translateX(-8px); }
+  75% { transform: translateX(8px); }
+}
+
+.pw-btn {
+  width: 100%;
+  background: #0071e3;
+  color: #fff;
+  font-family: 'Pretendard', sans-serif;
+  font-weight: 600;
+  font-size: 15px;
+  padding: 13px;
+  border-radius: 10px;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  margin-bottom: 12px;
+}
+
+.pw-btn:hover { background: #0077ed; box-shadow: 0 4px 16px rgba(0,113,227,.3); }
+
+.pw-error {
+  font-size: 12px;
+  color: #c62828;
+  min-height: 18px;
+  margin-bottom: 8px;
+}
+
+.pw-footer {
+  font-size: 11px;
+  color: #86868b;
+  margin-top: 20px;
+}
+</style>
+</head>
+<body>
+
+
+<!-- 비밀번호 게이트 -->
+<div id="pw-gate">
+  <div class="pw-card">
+    <div class="pw-eyebrow">루커 비주얼라이저 · VER 3.0</div>
+    <div class="pw-title">접속 코드 입력</div>
+    <div class="pw-desc">승인된 팀원만 접속 가능합니다<br>관리자에게 접속 코드를 요청하세요</div>
+    <input type="password" class="pw-input" id="pw-input" placeholder="••••••" maxlength="20"
+      onkeydown="if(event.key==='Enter') checkPW()">
+    <div class="pw-error" id="pw-error"></div>
+    <button class="pw-btn" onclick="checkPW()">입장하기</button>
+    <div class="pw-footer">made by 영빈 · AMPM Global Performance Team</div>
+  </div>
+</div>
+
+<script>
+// ── 비밀번호 게이트 ──
+var PASSWORDS = ['ampm1174']; // 비밀번호 목록 (여러개 가능)
+
+function checkPW() {
+  var input = document.getElementById('pw-input').value.trim();
+  var errorEl = document.getElementById('pw-error');
+  var inputEl = document.getElementById('pw-input');
+
+  if (PASSWORDS.includes(input)) {
+    document.getElementById('pw-gate').style.display = 'none';
+    sessionStorage.setItem('looker_auth', 'true');
+  } else {
+    errorEl.textContent = '접속 코드가 올바르지 않습니다';
+    inputEl.classList.add('error');
+    inputEl.value = '';
+    setTimeout(() => {
+      inputEl.classList.remove('error');
+      errorEl.textContent = '';
+    }, 1500);
+  }
+}
+
+// 세션 유지 (같은 탭에서 새로고침해도 유지)
+if (sessionStorage.getItem('looker_auth') === 'true') {
+  document.getElementById('pw-gate').style.display = 'none';
+}
+</script>
+
+
+<!-- RAW 데이터 업로드 가이드 팝업 -->
+<div id="guide-modal">
+  <div class="guide-card">
+    <div class="guide-header">
+      <div class="guide-title">📋 매체별 RAW 데이터 파일 업로드 가이드</div>
+      <button class="guide-close" onclick="document.getElementById('guide-modal').classList.remove('open')">✕</button>
+    </div>
+    <div class="guide-body">
+
+      <div class="guide-tabs">
+        <button class="guide-tab active-commerce" id="tab-commerce" onclick="switchGuideTab('commerce')">
+          🛒 커머스 업종
+        </button>
+        <button class="guide-tab" id="tab-db" onclick="switchGuideTab('db')">
+          📋 DB 업종 (리드/문의)
+        </button>
+      </div>
+
+      <!-- 커머스 가이드 -->
+      <div class="guide-panel active" id="panel-commerce">
+
+        <div class="guide-media-section">
+          <div class="guide-media-header meta">📘 META 광고 (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일</span>
+            <span class="guide-col-tag required">캠페인 이름</span>
+            <span class="guide-col-tag required">광고 세트 이름</span>
+            <span class="guide-col-tag required">광고 이름</span>
+            <span class="guide-col-tag required">노출</span>
+            <span class="guide-col-tag required">클릭(전체)</span>
+            <span class="guide-col-tag required">지출 금액 (KRW)</span>
+            <span class="guide-col-tag key">구매</span>
+            <span class="guide-col-tag key">구매 전환값</span>
+            <span class="guide-col-tag">장바구니에 담기</span>
+            <span class="guide-col-tag">결제 시작</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 광고관리자 → 보고서 → 분류: <b>일(Day)</b> + <b>광고(소재)</b> 단위 → Excel(.xlsx) 저장<br>
+            <span class="guide-badge badge-required">필수</span> 반드시 포함 &nbsp;
+            <span class="guide-badge badge-key">핵심</span> ROAS 계산에 필요
+          </div>
+        </div>
+
+        <div class="guide-media-section">
+          <div class="guide-media-header google">🔍 Google SA (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일</span>
+            <span class="guide-col-tag required">캠페인</span>
+            <span class="guide-col-tag required">광고그룹</span>
+            <span class="guide-col-tag required">검색 키워드</span>
+            <span class="guide-col-tag required">노출수</span>
+            <span class="guide-col-tag required">클릭수</span>
+            <span class="guide-col-tag required">비용</span>
+            <span class="guide-col-tag key">전환</span>
+            <span class="guide-col-tag key">전환 가치</span>
+            <span class="guide-col-tag">Google Channel Purchase_모든 전환</span>
+            <span class="guide-col-tag">Google Channel Purchase_모든 전환 가치</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 광고관리자 → 보고서 → 분류: <b>일(Day)</b> + <b>광고(소재)</b> 단위 → Excel(.xlsx)<br>
+            Purchase 전환 컬럼은 루커 시트(3개 시트) 형태로 저장
+          </div>
+        </div>
+
+        <div class="guide-media-section">
+          <div class="guide-media-header naver">🟢 Naver SA (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일별</span>
+            <span class="guide-col-tag required">캠페인유형</span>
+            <span class="guide-col-tag required">캠페인</span>
+            <span class="guide-col-tag required">광고그룹</span>
+            <span class="guide-col-tag required">키워드</span>
+            <span class="guide-col-tag required">노출수</span>
+            <span class="guide-col-tag required">클릭수</span>
+            <span class="guide-col-tag required">총비용</span>
+            <span class="guide-col-tag key">구매완료 전환수</span>
+            <span class="guide-col-tag key">구매완료 전환매출액(원)</span>
+            <span class="guide-col-tag">총 전환수</span>
+            <span class="guide-col-tag">평균노출순위</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 네이버 광고 → 보고서 → 키워드 단위 + 일별 → CSV 저장<br>
+            <b>구매완료 전환수</b>가 실구매 기준 (총 전환수와 다름)
+          </div>
+        </div>
+
+      </div>
+
+      <!-- DB 업종 가이드 -->
+      <div class="guide-panel" id="panel-db">
+
+        <div class="guide-media-section">
+          <div class="guide-media-header meta">📘 META 광고 (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일</span>
+            <span class="guide-col-tag required">캠페인 이름</span>
+            <span class="guide-col-tag required">광고 세트 이름</span>
+            <span class="guide-col-tag required">광고 이름</span>
+            <span class="guide-col-tag required">노출</span>
+            <span class="guide-col-tag required">클릭(전체)</span>
+            <span class="guide-col-tag required">지출 금액</span>
+            <span class="guide-col-tag key">웹사이트 문의</span>
+            <span class="guide-col-tag key">잠재고객</span>
+            <span class="guide-col-tag">양식 작성</span>
+            <span class="guide-col-tag">메시지 전송</span>
+            <span class="guide-col-tag">전화 통화</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 광고관리자 → 보고서 → 분류: <b>일(Day)</b> + <b>광고(소재)</b> 단위 → Excel(.xlsx)<br>
+            <span class="guide-badge badge-key">핵심</span> 주요 전환 컬럼 중 1개 이상 필수 포함 (자동 감지)
+          </div>
+        </div>
+
+        <div class="guide-media-section">
+          <div class="guide-media-header google">🔍 Google SA (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일</span>
+            <span class="guide-col-tag required">캠페인</span>
+            <span class="guide-col-tag required">광고그룹</span>
+            <span class="guide-col-tag required">검색 키워드</span>
+            <span class="guide-col-tag required">노출수</span>
+            <span class="guide-col-tag required">클릭수</span>
+            <span class="guide-col-tag required">비용</span>
+            <span class="guide-col-tag key">전환</span>
+            <span class="guide-col-tag key">전환당 비용</span>
+            <span class="guide-col-tag">전환 액션별 전환수</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 광고관리자 → 보고서 → 전환 액션: <b>문의/잠재고객/양식제출</b> 선택 → Excel(.xlsx)
+          </div>
+        </div>
+
+        <div class="guide-media-section">
+          <div class="guide-media-header naver">🟢 Naver SA (필수 컬럼)</div>
+          <div class="guide-cols">
+            <span class="guide-col-tag required">일별</span>
+            <span class="guide-col-tag required">캠페인유형</span>
+            <span class="guide-col-tag required">캠페인</span>
+            <span class="guide-col-tag required">광고그룹</span>
+            <span class="guide-col-tag required">키워드</span>
+            <span class="guide-col-tag required">노출수</span>
+            <span class="guide-col-tag required">클릭수</span>
+            <span class="guide-col-tag required">총비용</span>
+            <span class="guide-col-tag key">총 전환수</span>
+            <span class="guide-col-tag key">총 전환당비용(원)</span>
+            <span class="guide-col-tag">평균노출순위</span>
+            <span class="guide-col-tag">평균 CPC</span>
+          </div>
+          <div class="guide-note">
+            ⚙️ 설정: 네이버 광고 → 보고서 → 키워드 단위 + 일별 → CSV 저장<br>
+            DB업종은 <b>총 전환수 + 총 전환당비용</b>이 핵심 (커머스의 구매완료와 다름)
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function switchGuideTab(type) {
+  document.getElementById('panel-commerce').classList.toggle('active', type === 'commerce');
+  document.getElementById('panel-db').classList.toggle('active', type === 'db');
+  document.getElementById('tab-commerce').className = 'guide-tab' + (type === 'commerce' ? ' active-commerce' : '');
+  document.getElementById('tab-db').className = 'guide-tab' + (type === 'db' ? ' active-db' : '');
+}
+</script>
+
+
+
+<!-- PDF 저장 모달 -->
+<div id="pdf-modal">
+  <div class="pdf-modal-card">
+    <div class="pdf-modal-title">📄 PDF 저장</div>
+    <div class="pdf-modal-desc">저장할 범위를 선택해주세요</div>
+
+    <div class="pdf-option-row">
+      <div class="pdf-option selected" id="opt-current" onclick="selectPdfOpt('current')">
+        <div class="pdf-option-icon">📋</div>
+        <div class="pdf-option-label">현재 매체</div>
+        <div class="pdf-option-sub">지금 보이는 탭</div>
+      </div>
+      <div class="pdf-option" id="opt-all" onclick="selectPdfOpt('all')">
+        <div class="pdf-option-icon">📊</div>
+        <div class="pdf-option-label">전체 매체</div>
+        <div class="pdf-option-sub">메타+구글+네이버</div>
+      </div>
+    </div>
+
+    <div class="pdf-progress" id="pdf-progress">
+      <div class="pdf-progress-bar" id="pdf-progress-bar"></div>
+    </div>
+    <div class="pdf-modal-status" id="pdf-status"></div>
+
+    <button class="pdf-start-btn" id="pdf-start-btn" onclick="startPdfExport()">저장 시작</button>
+    <button class="pdf-cancel-btn" onclick="closePdfModal()">취소</button>
+  </div>
+</div>
+
+<div id="loading">
+  <div class="loading-ring"></div>
+  <div class="loading-text">데이터를 분석하고 있습니다</div>
+</div>
+
+<!-- 업로드 화면 -->
+<div id="upload-screen">
+  <div class="upload-hero">
+    <div class="upload-eyebrow">루커 비주얼라이저 · VER 3.0 · MADE BY 영빈</div>
+    <div class="upload-title">통합 광고 성과<br>대시보드</div>
+    <div class="upload-desc">메타, 구글, 네이버 데이터를 한 번에 업로드하면<br>매체별 인사이트를 자동으로 분석해드립니다</div>
+  </div>
+
+  <div class="upload-card">
+    <div class="upload-zone" id="drop-zone">
+      <div class="upload-icon-wrap">📊</div>
+      <div class="upload-zone-title">파일을 여기에 드래그하거나</div>
+      <div class="upload-zone-desc">메타(.xlsx), 구글(.xlsx), 네이버(.csv)<br>파일을 한 번에 올려주세요</div>
+      <label class="upload-cta" for="file-input">파일 선택</label>
+      <input type="file" id="file-input" accept=".xlsx,.xls,.csv" multiple>
+    </div>
+
+    <button onclick="document.getElementById('guide-modal').classList.add('open')"
+      style="width:100%;background:#f5f5f7;border:1.5px solid #d2d2d7;border-radius:10px;
+             padding:11px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;
+             color:#1d1d1f;cursor:pointer;margin-bottom:12px;transition:all .2s;display:flex;
+             align-items:center;justify-content:center;gap:6px;"
+      onmouseover="this.style.background='#e8e8ed'" 
+      onmouseout="this.style.background='#f5f5f7'">
+      📋 매체별 RAW 데이터 파일 업로드 가이드
+    </button>
+    <div class="file-slots">
+      <div class="file-slot" id="slot-meta">
+        <div class="slot-icon">📘</div>
+        <div class="slot-name">META</div>
+        <div class="slot-status" id="status-meta">대기 중</div>
+      </div>
+      <div class="file-slot" id="slot-google">
+        <div class="slot-icon">🔍</div>
+        <div class="slot-name">GOOGLE</div>
+        <div class="slot-status" id="status-google">대기 중</div>
+      </div>
+      <div class="file-slot" id="slot-naver">
+        <div class="slot-icon">🟢</div>
+        <div class="slot-name">NAVER SA</div>
+        <div class="slot-status" id="status-naver">대기 중</div>
+      </div>
+    </div>
+
+    <button class="analyze-btn" id="analyze-btn" onclick="buildDashboard()">분석 시작</button>
+
+    <div class="upload-note">
+      매체별 파일을 모두 올리지 않아도 분석 가능합니다<br>
+      구글은 루커 엑셀 파일(.xlsx), 네이버는 CSV 파일을 올려주세요
+    </div>
+  </div>
+</div>
+
+<!-- 대시보드 -->
+<div id="dashboard">
+  <nav class="top-nav">
+    <div class="nav-left">
+      <div class="nav-logo">루커 비주얼라이저</div>
+      <div class="nav-client" id="nav-client">—</div>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn nav-btn-primary" onclick="openPdfModal()">📄 PDF 저장</button>
+      <button class="nav-btn nav-btn-ghost" onclick="resetAll()">다시 업로드</button>
+      <button class="nav-btn nav-btn-ghost" onclick="netlifyIdentity.logout()" style="color:#c0392b;border-color:#f5c6c6">로그아웃</button>
+    </div>
+  </nav>
+
+  <!-- 월 탭 -->
+  <div style="background:var(--surface);border-bottom:1px solid var(--border-light);">
+    <div style="display:flex;align-items:center;padding:0 32px;">
+      <div class="period-toggle" style="margin-right:16px;margin-left:0;">
+        <button class="period-toggle-btn active" id="toggle-month" onclick="setPeriodMode('month')">월별</button>
+        <button class="period-toggle-btn" id="toggle-week" onclick="setPeriodMode('week')">주차별</button>
+      </div>
+      <div class="month-tab-bar" id="month-tabs" style="border-bottom:none;flex:1;padding:0;"></div>
+      <div class="week-tabs-wrap" id="week-tabs" style="display:none;flex:1;border-bottom:none;padding:0;margin:0;"></div>
+    </div>
+  </div>
+
+  <!-- 매체 탭 -->
+  <div class="media-tab-bar" id="media-tabs"></div>
+
+  <div class="dash-body">
+
+    <!-- 비교 배너 -->
+    <div class="compare-banner" id="compare-banner">
+      <div class="compare-period">
+        <div class="cp-box">
+          <div class="cp-label">전월</div>
+          <div class="cp-val" id="cp-prev">—</div>
+        </div>
+        <div class="cp-arrow">→</div>
+        <div class="cp-box cp-this">
+          <div class="cp-label">금월</div>
+          <div class="cp-val" id="cp-curr">—</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 메타 패널 -->
+    <div class="media-panel" id="panel-meta">
+      <div class="section-header">
+        <div class="section-title">핵심 지표</div>
+        <div class="section-sub">META · 전월 대비</div>
+      </div>
+      <div class="kpi-grid" id="meta-kpi"></div>
+
+      <div class="chart-grid-2">
+        <div class="chart-card">
+          <div class="chart-card-title">일별 노출 / 클릭 추이</div>
+          <div class="chart-card-sub">금월 vs 전월</div>
+          <canvas id="meta-chart-daily"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">캠페인별 지출 비중</div>
+          <div class="chart-card-sub">금월 기준</div>
+          <canvas id="meta-chart-pie"></canvas>
+        </div>
+      </div>
+
+      <div class="chart-grid-equal">
+        <div class="chart-card">
+          <div class="chart-card-title">일별 지출 추이</div>
+          <div class="chart-card-sub">금월 vs 전월 (KRW)</div>
+          <canvas id="meta-chart-spend"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">일별 CTR 추이</div>
+          <div class="chart-card-sub">금월 vs 전월 (%)</div>
+          <canvas id="meta-chart-ctr"></canvas>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">소재별 성과</div>
+        <div class="section-sub">금월 · 지출 기준 TOP 10</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>소재명</th><th>광고세트</th>
+              <th>노출</th><th>클릭</th><th>CTR</th>
+              <th>지출(원)</th><th>CPA</th><th>구매</th>
+            </tr></thead>
+            <tbody id="meta-creative-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">인사이트 및 코멘트</div>
+        <div class="section-sub">전월 대비 금월 성과 요약</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-top">
+          <div class="insight-icon-wrap">📘</div>
+          <div>
+            <div class="insight-heading">Meta 광고 성과 인사이트</div>
+            <div class="insight-period" id="meta-insight-period">—</div>
+          </div>
+        </div>
+        <div class="insight-divider"></div>
+        <div class="insight-items" id="meta-insights"></div>
+      </div>
+    </div>
+
+    <!-- 구글 패널 -->
+    <div class="media-panel" id="panel-google">
+      <div class="section-header">
+        <div class="section-title">핵심 지표</div>
+        <div class="section-sub">Google SA · 전월 대비</div>
+      </div>
+      <div class="kpi-grid" id="google-kpi"></div>
+
+      <div class="chart-grid-equal">
+        <div class="chart-card">
+          <div class="chart-card-title">일별 노출 / 클릭 추이</div>
+          <div class="chart-card-sub">금월 vs 전월</div>
+          <canvas id="google-chart-daily"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">일별 비용 추이</div>
+          <div class="chart-card-sub">금월 vs 전월 (KRW)</div>
+          <canvas id="google-chart-spend"></canvas>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">전환 키워드 TOP 10</div>
+        <div class="section-sub">금월 · Purchase 전환 기준</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>검색 키워드</th>
+              <th>노출</th><th>클릭</th><th>CTR</th>
+              <th>비용(원)</th><th>전환</th><th>CPA(원)</th>
+            </tr></thead>
+            <tbody id="google-keyword-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">인사이트 및 코멘트</div>
+        <div class="section-sub">전월 대비 금월 성과 요약</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-top">
+          <div class="insight-icon-wrap">🔍</div>
+          <div>
+            <div class="insight-heading">Google SA 성과 인사이트</div>
+            <div class="insight-period" id="google-insight-period">—</div>
+          </div>
+        </div>
+        <div class="insight-divider"></div>
+        <div class="insight-items" id="google-insights"></div>
+      </div>
+    </div>
+
+    <!-- 네이버 패널 -->
+    <div class="media-panel" id="panel-naver">
+      <div class="section-header">
+        <div class="section-title">핵심 지표</div>
+        <div class="section-sub">Naver SA · 전월 대비</div>
+      </div>
+      <div class="kpi-grid" id="naver-kpi"></div>
+
+      <div class="chart-grid-equal">
+        <div class="chart-card">
+          <div class="chart-card-title">일별 노출 / 클릭 추이</div>
+          <div class="chart-card-sub">금월 vs 전월</div>
+          <canvas id="naver-chart-daily"></canvas>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">일별 비용 추이</div>
+          <div class="chart-card-sub">금월 vs 전월 (KRW)</div>
+          <canvas id="naver-chart-spend"></canvas>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">전환 키워드 TOP 10</div>
+        <div class="section-sub">금월 · 구매완료 전환 기준 (실구매)</div>
+      </div>
+      <div class="table-card">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>#</th><th>키워드</th>
+              <th>노출</th><th>클릭</th><th>CTR</th>
+              <th>비용(원)</th><th>구매완료</th><th>CPA(원)</th><th>평균순위</th>
+            </tr></thead>
+            <tbody id="naver-keyword-table"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section-header">
+        <div class="section-title">인사이트 및 코멘트</div>
+        <div class="section-sub">전월 대비 금월 성과 요약</div>
+      </div>
+      <div class="insight-card">
+        <div class="insight-top">
+          <div class="insight-icon-wrap">🟢</div>
+          <div>
+            <div class="insight-heading">Naver SA 성과 인사이트</div>
+            <div class="insight-period" id="naver-insight-period">—</div>
+          </div>
+        </div>
+        <div class="insight-divider"></div>
+        <div class="insight-items" id="naver-insights"></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+
+// ── 업종 자동 감지 ──
+function detectIndustry(metaRaw) {
+  if (!metaRaw || !metaRaw.length) return 'commerce';
+  const cols = Object.keys(metaRaw[0]);
+  // DB업종 전환 컬럼
+  const dbCols = ['웹사이트 문의', '잠재고객', '양식 작성', '메시지 전송', '전화 통화', '리드'];
+  // 커머스 전환 컬럼
+  const commerceCols = ['구매', '구매 전환값', '결제 시작'];
+
+  const hasDB = dbCols.some(c => cols.includes(c));
+  const hasCommerce = commerceCols.some(c => cols.includes(c));
+
+  if (hasDB && !hasCommerce) return 'db';
+  if (hasCommerce) return 'commerce';
+  return 'commerce'; // 기본값
+}
+
+// ── 전역 상태 ──
+let STATE = {
+  metaRaw: null, googleRaw: null, naverRaw: null,
+  months: [], currentMonth: null, prevMonth: null,
+  currentMedia: null, charts: [],
+  industry: 'commerce', // 'commerce' or 'db'
+  _overrideDates: null
+};
+
+const n = v => parseFloat(v) || 0;
+const fmt = v => v >= 1e8 ? (v/1e8).toFixed(1)+'억' : v >= 1e4 ? (v/1e4).toFixed(1)+'만' : Math.round(v).toLocaleString();
+const fmtN = v => Math.round(v).toLocaleString();
+const fmtP = v => (+v).toFixed(2)+'%';
+const fmtW = v => fmtN(v)+'원';
+
+
+// ── 주차별 / 월별 모드 ──
+let periodMode = 'month'; // 'month' or 'week'
+let currentWeek = null;
+
+function setPeriodMode(mode) {
+  periodMode = mode;
+  document.getElementById('toggle-month').classList.toggle('active', mode === 'month');
+  document.getElementById('toggle-week').classList.toggle('active', mode === 'week');
+  document.getElementById('month-tabs').style.display = mode === 'month' ? 'flex' : 'none';
+  document.getElementById('week-tabs').style.display = mode === 'week' ? 'flex' : 'none';
+
+  if (mode === 'week') {
+    buildWeekTabs();
+  } else {
+    // 월별로 돌아올 때 현재 월 데이터 복원
+    renderMediaPanel(STATE.currentMedia);
+  }
+}
+
+function getWeekLabel(weekDates) {
+  if (!weekDates.length) return '';
+  const first = weekDates[0];
+  const last = weekDates[weekDates.length - 1];
+  return first.slice(5) + '~' + last.slice(5);
+}
+
+function buildWeekTabs() {
+  const allDates = getAllDates();
+  const weeks = groupByWeek(allDates);
+
+  const container = document.getElementById('week-tabs');
+  container.innerHTML = weeks.map((w, i) => `
+    <button class="week-tab ${i === weeks.length-1 ? 'active' : ''}"
+      onclick="switchWeek(${i})">${w.label}</button>
+  `).join('');
+
+  // 최신 주차로 설정
+  switchWeek(weeks.length - 1);
+}
+
+function getAllDates() {
+  const dates = new Set();
+  if (STATE.metaRaw) STATE.metaRaw.forEach(r => { const d = toKey(r['일']); if(d) dates.add(d); });
+  if (STATE.googleRaw) Object.values(STATE.googleRaw)[0]?.forEach(r => { const d = toKey(r['일']); if(d) dates.add(d); });
+  if (STATE.naverRaw) STATE.naverRaw.forEach(r => { const d = toKey(r['일별']); if(d) dates.add(d); });
+  return [...dates].sort();
+}
+
+function groupByWeek(dates) {
+  const weeks = [];
+  let i = 0;
+  while (i < dates.length) {
+    const weekStart = new Date(dates[i]);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setDate(weekStart.getDate() + 6);
+    const weekEndStr = weekEnd.toISOString().slice(0, 10);
+
+    const weekDates = dates.filter(d => d >= dates[i] && d <= weekEndStr);
+    if (weekDates.length > 0) {
+      // 월-주차 라벨 계산
+      const month = weekStart.getMonth() + 1;
+      const weekNum = Math.ceil(weekStart.getDate() / 7);
+      weeks.push({
+        label: `${month}월 ${weekNum}주`,
+        dates: weekDates,
+        prevDates: weeks.length > 0 ? weeks[weeks.length-1].dates : []
+      });
+      i += weekDates.length;
+    } else {
+      i++;
+    }
+  }
+  return weeks;
+}
+
+function switchWeek(idx) {
+  const allDates = getAllDates();
+  const weeks = groupByWeek(allDates);
+  if (!weeks[idx]) return;
+
+  // 탭 활성화
+  document.querySelectorAll('.week-tab').forEach((t, i) => {
+    t.classList.toggle('active', i === idx);
+  });
+
+  currentWeek = weeks[idx];
+  STATE.currentMonth = null; // 주차 모드
+  STATE.prevMonth = null;
+
+  // 비교 배너 업데이트
+  const prev = weeks[idx - 1];
+  document.getElementById('cp-curr').textContent = weeks[idx].label;
+  document.getElementById('cp-prev').textContent = prev ? prev.label : '이전 주 없음';
+
+  // 주차 데이터로 렌더
+  renderMediaPanelWithDates(
+    STATE.currentMedia,
+    weeks[idx].dates,
+    prev ? prev.dates : []
+  );
+}
+
+function renderMediaPanelWithDates(media, currDates, prevDates) {
+  document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+media)?.classList.add('active');
+
+  if (media === 'meta' && STATE.metaRaw) renderMetaWithDates(currDates, prevDates);
+  if (media === 'google' && STATE.googleRaw) renderGoogleWithDates(currDates, prevDates);
+  if (media === 'naver' && STATE.naverRaw) renderNaverWithDates(currDates, prevDates);
+}
+
+// 기존 switchMedia에 주차 모드 연동
+const origSwitchMedia = window.switchMedia;
+function switchMedia(media) {
+  STATE.currentMedia = media;
+  document.querySelectorAll('.media-tab').forEach(t => { t.className = 'media-tab'; });
+  document.getElementById('tab-'+media)?.classList.add('active-'+media);
+
+  if (periodMode === 'week' && currentWeek) {
+    const allDates = getAllDates();
+    const weeks = groupByWeek(allDates);
+    const idx = weeks.findIndex(w => w.dates.join() === currentWeek.dates.join());
+    const prev = idx > 0 ? weeks[idx-1] : null;
+    renderMediaPanelWithDates(media, currentWeek.dates, prev ? prev.dates : []);
+  } else {
+    renderMediaPanel(media);
+  }
+}
+
+// renderMeta/Google/Naver의 주차 버전 (dates 직접 주입)
+function renderMetaWithDates(cmDates, pmDates) {
+  const savedMonth = STATE.currentMonth;
+  const savedPrev = STATE.prevMonth;
+  // 임시로 dates 배열 직접 사용
+  STATE._overrideDates = { curr: cmDates, prev: pmDates };
+  renderMeta(null, null); // null 전달 시 override 사용
+  STATE._overrideDates = null;
+}
+
+function renderGoogleWithDates(cmDates, pmDates) {
+  STATE._overrideDates = { curr: cmDates, prev: pmDates };
+  renderGoogle(null, null);
+  STATE._overrideDates = null;
+}
+
+function renderNaverWithDates(cmDates, pmDates) {
+  STATE._overrideDates = { curr: cmDates, prev: pmDates };
+  renderNaver(null, null);
+  STATE._overrideDates = null;
+}
+
+// ── PDF 내보내기 ──
+let pdfOpt = 'current';
+
+function openPdfModal() {
+  document.getElementById('pdf-modal').classList.add('open');
+}
+
+function closePdfModal() {
+  document.getElementById('pdf-modal').classList.remove('open');
+  document.getElementById('pdf-progress').style.display = 'none';
+  document.getElementById('pdf-progress-bar').style.width = '0%';
+  document.getElementById('pdf-status').textContent = '';
+  document.getElementById('pdf-start-btn').disabled = false;
+  document.getElementById('pdf-start-btn').textContent = '저장 시작';
+}
+
+function selectPdfOpt(opt) {
+  pdfOpt = opt;
+  document.getElementById('opt-current').classList.toggle('selected', opt === 'current');
+  document.getElementById('opt-all').classList.toggle('selected', opt === 'all');
+}
+
+async function startPdfExport() {
+  const btn = document.getElementById('pdf-start-btn');
+  const progress = document.getElementById('pdf-progress');
+  const bar = document.getElementById('pdf-progress-bar');
+  const status = document.getElementById('pdf-status');
+
+  btn.disabled = true;
+  btn.textContent = '저장 중...';
+  progress.style.display = 'block';
+
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF('l', 'mm', 'a4');
+  const pageW = pdf.internal.pageSize.getWidth(); // 297mm
+  const pageH = pdf.internal.pageSize.getHeight(); // 210mm
+  const margin = 8;
+  const headerH = 14;
+  const contentW = pageW - margin * 2;
+  const contentH = pageH - headerH - margin;
+
+  const mediaList = pdfOpt === 'all'
+    ? ['meta', 'google', 'naver'].filter(m => STATE[m+'Raw'])
+    : [STATE.currentMedia];
+
+  const mediaNames = { meta: 'META', google: 'Google SA', naver: 'Naver SA' };
+
+  // 섹션별 셀렉터 (3페이지 분할)
+  const sectionSelectors = [
+    // Page 1: KPI + 차트 상단
+    ['.kpi-grid', '.charts-grid'],
+    // Page 2: 차트 하단 + 테이블
+    ['.two-col', '.table-card:first-of-type', '.table-card:last-of-type'],
+    // Page 3: 인사이트
+    ['.insight-card']
+  ];
+
+  async function addPageHeader(pdf, mediaName, pageNum, totalPages, clientName) {
+    // 헤더를 DOM 요소로 생성 후 html2canvas로 캡처 → 한글 깨짐 방지
+    const headerEl = document.createElement('div');
+    const pxW = Math.round(pageW * 3.78 * 1.5); // mm → px (96dpi 기준) × scale
+    headerEl.style.cssText = `
+      position: fixed; left: -9999px; top: 0;
+      width: ${pxW}px; height: 53px;
+      background: #f5f5f7;
+      border-bottom: 1px solid #d2d2d7;
+      display: flex; align-items: center;
+      padding: 0 ${margin * 3.78}px;
+      box-sizing: border-box;
+      font-family: 'Pretendard', -apple-system, sans-serif;
+    `;
+    const now = new Date();
+    const dateStr = now.toLocaleDateString('ko-KR');
+    headerEl.innerHTML = `
+      <span style="font-size:13px;font-weight:700;color:#1d1d1f;">루커 비주얼라이저</span>
+      <span style="font-size:13px;color:#6e6e73;margin-left:6px;"> · ${clientName} · ${mediaName} 광고 성과</span>
+      <span style="font-size:13px;color:#6e6e73;margin-left:auto;">${dateStr} &nbsp; ${pageNum}/${totalPages}</span>
+    `;
+    document.body.appendChild(headerEl);
+    await new Promise(r => setTimeout(r, 80));
+
+    const hCanvas = await html2canvas(headerEl, {
+      scale: 1.5,
+      useCORS: true,
+      backgroundColor: '#f5f5f7',
+      logging: false,
+      width: pxW,
+      height: 53,
+    });
+    document.body.removeChild(headerEl);
+
+    const hImg = hCanvas.toDataURL('image/jpeg', 0.95);
+    pdf.addImage(hImg, 'JPEG', 0, 0, pageW, headerH);
+  }
+
+  try {
+    let isFirstPage = true;
+    const clientEl = document.getElementById('nav-client');
+    const clientName = clientEl ? clientEl.innerText.replace(/[^가-힣\w]/g, ' ').trim().split(' ')[0] : 'report';
+    const dateStr = new Date().toISOString().slice(0, 10).replace(/-/g, '');
+
+    for (let mi = 0; mi < mediaList.length; mi++) {
+      const media = mediaList[mi];
+      document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-'+media)?.classList.add('active');
+      await new Promise(r => setTimeout(r, 800));
+
+      const panel = document.getElementById('panel-'+media);
+      if (!panel) continue;
+
+      // 3개 섹션 각각 캡처 (메타는 chart-grid-2 + chart-grid-equal, 구글/네이버는 chart-grid-equal만)
+      const chartGrid2 = panel.querySelector('.chart-grid-2');
+      const chartGridEqual = panel.querySelector('.chart-grid-equal');
+      const sections = chartGrid2 ? [
+        // 메타: chart-grid-2 (상단 2개) / chart-grid-equal (하단 2개) 분리
+        { els: [panel.querySelector('.kpi-grid'), chartGrid2], label: '핵심 지표 & 차트' },
+        { els: [chartGridEqual, ...Array.from(panel.querySelectorAll('.table-card'))], label: '차트 & 성과 테이블' },
+        { els: [panel.querySelector('.insight-card')], label: '인사이트 및 코멘트' }
+      ] : [
+        // 구글/네이버: chart-grid-equal 하나뿐 → KPI+차트 한 페이지
+        { els: [panel.querySelector('.kpi-grid'), chartGridEqual], label: '핵심 지표 & 차트' },
+        { els: Array.from(panel.querySelectorAll('.table-card')), label: '성과 테이블' },
+        { els: [panel.querySelector('.insight-card')], label: '인사이트 및 코멘트' }
+      ];
+
+      const totalPages = mediaList.length * 3;
+
+      for (let si = 0; si < sections.length; si++) {
+        const section = sections[si];
+        const validEls = section.els.filter(el => el);
+        if (!validEls.length) continue;
+
+        // 섹션 래퍼 생성 (canvas는 cloneNode하면 내용 소실 → 원본 직접 캡처)
+        const wrapper = document.createElement('div');
+        wrapper.style.cssText = 'position:fixed;left:-9999px;top:0;width:1280px;background:#f5f5f7;padding:20px;box-sizing:border-box;';
+
+        // canvas를 포함한 요소는 원본을 잠시 wrapper로 이동 후 캡처, 나머지는 clone
+        const movedEls = [];
+        const origStyles = [];
+        validEls.forEach(el => {
+          const hasCanvas = el.querySelector('canvas') || el.tagName === 'CANVAS';
+          if (hasCanvas) {
+            const placeholder = document.createElement('div');
+            placeholder.dataset.placeholder = 'true';
+            el.parentNode.insertBefore(placeholder, el);
+            // 원본 스타일 백업
+            origStyles.push({ el, width: el.style.width, maxWidth: el.style.maxWidth, marginBottom: el.style.marginBottom });
+            // 강제 너비 지정 → grid가 wrapper 너비 기준으로 재계산
+            el.style.width = '1240px';
+            el.style.maxWidth = '1240px';
+            el.style.marginBottom = '16px';
+            el.querySelectorAll('.chart-card, canvas').forEach(child => {
+              child.style.maxWidth = '100%';
+              child.style.boxSizing = 'border-box';
+            });
+            wrapper.appendChild(el);
+            movedEls.push({ el, placeholder });
+          } else {
+            const clone = el.cloneNode(true);
+            clone.style.width = '1240px';
+            clone.style.maxWidth = '1240px';
+            clone.style.marginBottom = '16px';
+            wrapper.appendChild(clone);
+          }
+        });
+        document.body.appendChild(wrapper);
+
+        await new Promise(r => setTimeout(r, 500));
+
+        const canvas = await html2canvas(wrapper, {
+          scale: 1.8,
+          useCORS: true,
+          backgroundColor: '#f5f5f7',
+          logging: false,
+          width: 1280,
+        });
+
+        document.body.removeChild(wrapper);
+
+        // canvas 포함 원본 요소 제자리 복원 + 스타일 원상복구
+        movedEls.forEach(({ el, placeholder }) => {
+          const saved = origStyles.find(s => s.el === el);
+          if (saved) {
+            el.style.width = saved.width;
+            el.style.maxWidth = saved.maxWidth;
+            el.style.marginBottom = saved.marginBottom;
+          }
+          el.querySelectorAll('.chart-card, canvas').forEach(child => {
+            child.style.maxWidth = '';
+            child.style.boxSizing = '';
+          });
+          placeholder.parentNode.insertBefore(el, placeholder);
+          placeholder.remove();
+        });
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.95);
+        const imgRatio = canvas.height / canvas.width;
+        const imgW = contentW;
+        const imgH = imgW * imgRatio;
+
+        if (!isFirstPage) pdf.addPage();
+        isFirstPage = false;
+
+        const pageNum = mi * 3 + si + 1;
+        await addPageHeader(pdf, mediaNames[media], pageNum, totalPages, clientName);
+
+        // 이미지가 페이지에 맞게 조정
+        if (imgH <= contentH) {
+          pdf.addImage(imgData, 'JPEG', margin, headerH + 2, imgW, imgH);
+        } else {
+          const scaledH = contentH;
+          const scaledW = scaledH / imgRatio;
+          const xOffset = (contentW - scaledW) / 2 + margin;
+          pdf.addImage(imgData, 'JPEG', xOffset, headerH + 2, scaledW, scaledH);
+        }
+
+        bar.style.width = ((pageNum / totalPages) * 90) + '%';
+        status.textContent = `${mediaNames[media]} ${section.label} 캡처 중... (${pageNum}/${totalPages})`;
+      }
+    }
+
+    bar.style.width = '100%';
+    status.textContent = '✅ 저장 완료!';
+    pdf.save(`루커_${clientName}_${dateStr}.pdf`);
+    setTimeout(closePdfModal, 1500);
+
+  } catch(err) {
+    status.textContent = '❌ 오류: ' + err.message;
+    btn.disabled = false;
+    btn.textContent = '다시 시도';
+    console.error(err);
+  }
+
+  // 원래 매체 복원
+  document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+STATE.currentMedia)?.classList.add('active');
+}
+
+// ── 파일 업로드 ──
+const fileInput = document.getElementById('file-input');
+fileInput.addEventListener('change', e => handleFiles([...e.target.files]));
+
+const dz = document.getElementById('drop-zone');
+dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('drag-over'); });
+dz.addEventListener('dragleave', () => dz.classList.remove('drag-over'));
+dz.addEventListener('drop', e => { e.preventDefault(); dz.classList.remove('drag-over'); handleFiles([...e.dataTransfer.files]); });
+
+function handleFiles(files) {
+  files.forEach(file => {
+    const name = file.name.toLowerCase();
+    // 구글: 엑셀이면서 '구글' 포함
+    if ((name.includes('구글') || name.includes('google')) && (name.endsWith('.xlsx') || name.endsWith('.xls'))) {
+      readGoogleFile(file);
+    }
+    // 네이버: csv
+    else if (name.includes('네이버') || name.includes('naver') || name.endsWith('.csv')) {
+      readNaverFile(file);
+    }
+    // 메타: 나머지 엑셀
+    else if (name.endsWith('.xlsx') || name.endsWith('.xls')) {
+      readMetaFile(file);
+    }
+  });
+}
+
+function readMetaFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      STATE.metaRaw = XLSX.utils.sheet_to_json(ws, { defval:0 });
+      setSlotLoaded('meta', file.name);
+    } catch(err) { alert('메타 파일 읽기 실패: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function readGoogleFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const wb = XLSX.read(e.target.result, { type:'array', cellDates:true });
+      // 3개 시트 파싱
+      const sheets = {};
+      wb.SheetNames.forEach(sn => {
+        const ws = wb.Sheets[sn];
+        const raw = XLSX.utils.sheet_to_json(ws, { defval:0, range:2 }); // skip 2 header rows
+        sheets[sn] = raw;
+      });
+      STATE.googleRaw = sheets;
+      setSlotLoaded('google', file.name);
+    } catch(err) { alert('구글 파일 읽기 실패: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function readNaverFile(file) {
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const text = new TextDecoder('utf-8').decode(new Uint8Array(e.target.result));
+      const lines = text.split('\n');
+      // 첫 줄이 계정 보고서 헤더면 skip
+      const startLine = lines[0].includes('계정 보고서') ? 1 : 0;
+      const headers = lines[startLine].split(',').map(h => h.trim().replace(/"/g,''));
+      const rows = [];
+      for (let i = startLine+1; i < lines.length; i++) {
+        if (!lines[i].trim()) continue;
+        const vals = lines[i].split(',').map(v => v.trim().replace(/"/g,''));
+        const obj = {};
+        headers.forEach((h,j) => obj[h] = vals[j] || '');
+        rows.push(obj);
+      }
+      STATE.naverRaw = rows;
+      setSlotLoaded('naver', file.name);
+    } catch(err) { alert('네이버 파일 읽기 실패: ' + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+function setSlotLoaded(media, filename) {
+  const slot = document.getElementById('slot-' + media);
+  const status = document.getElementById('status-' + media);
+  slot.classList.add('loaded');
+  status.textContent = '✓ ' + filename.slice(0, 12) + (filename.length > 12 ? '…' : '');
+  checkReady();
+}
+
+function checkReady() {
+  const ready = STATE.metaRaw || STATE.googleRaw || STATE.naverRaw;
+  const btn = document.getElementById('analyze-btn');
+  if (ready) btn.classList.add('ready');
+}
+
+function resetAll() {
+  STATE = { metaRaw:null, googleRaw:null, naverRaw:null, months:[], currentMonth:null, prevMonth:null, currentMedia:null, charts:[] };
+  STATE.charts.forEach(c => c.destroy());
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('upload-screen').style.display = 'flex';
+  document.getElementById('file-input').value = '';
+  ['meta','google','naver'].forEach(m => {
+    document.getElementById('slot-'+m).classList.remove('loaded');
+    document.getElementById('status-'+m).textContent = '대기 중';
+  });
+  document.getElementById('analyze-btn').classList.remove('ready');
+}
+
+// ── 날짜 파싱 ──
+const parseDate = v => {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (typeof v === 'string') {
+    // 네이버 형식: 2026.04.29.
+    const m = v.match(/(\d{4})\.(\d{2})\.(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    const d = new Date(v); return isNaN(d) ? null : d;
+  }
+  if (typeof v === 'number') return new Date((v-25569)*86400*1000);
+  return null;
+};
+
+const toKey = d => { if (!d) return null; const dd=parseDate(d); return dd?dd.toISOString().slice(0,10):null; };
+const toMonth = d => { const k=toKey(d); return k?k.slice(0,7):null; };
+const dayLabel = d => d.slice(8); // DD
+
+// ── 집계 헬퍼 ──
+function aggMeta(rows, dates) {
+  const ds = new Set(dates);
+  let imp=0,click=0,spend=0,purchase=0,revenue=0;
+  const byDate={}, byCamp={}, byAd={};
+  rows.forEach(r => {
+    const d = toKey(r['일']); if (!d||!ds.has(d)) return;
+    const im=n(r['노출']),cl=n(r['클릭(전체)']);
+    const sp=n(r['지출 금액 (KRW)'])||n(r['지출 금액']);
+    // 커머스: 구매 / DB: 웹사이트 문의, 잠재고객, 양식 작성 등
+    const pu=n(r['구매'])||n(r['웹사이트 문의'])||n(r['잠재고객'])||n(r['양식 작성'])||n(r['메시지 전송']);
+    const rv=n(r['구매 전환값']);
+    imp+=im;click+=cl;spend+=sp;purchase+=pu;revenue+=rv;
+    if(!byDate[d])byDate[d]={imp:0,click:0,spend:0,revenue:0};
+    byDate[d].imp+=im;byDate[d].click+=cl;byDate[d].spend+=sp;byDate[d].revenue+=rv;
+    const camp=r['캠페인 이름']||'';
+    if(!byCamp[camp])byCamp[camp]={imp:0,click:0,spend:0,purchase:0,revenue:0};
+    byCamp[camp].imp+=im;byCamp[camp].click+=cl;byCamp[camp].spend+=sp;byCamp[camp].purchase+=pu;byCamp[camp].revenue+=rv;
+    const ad=r['광고 이름']||'';
+    if(!byAd[ad])byAd[ad]={adset:r['광고 세트 이름']||'',imp:0,click:0,spend:0,purchase:0};
+    byAd[ad].imp+=im;byAd[ad].click+=cl;byAd[ad].spend+=sp;byAd[ad].purchase+=pu;
+  });
+  return{imp,click,spend,purchase,revenue,byDate,byCamp,byAd,
+    ctr:imp>0?(click/imp*100):0,cpc:click>0?(spend/click):0,
+    cpa:purchase>0?(spend/purchase):0,roas:spend>0?(revenue/spend*100):0};
+}
+
+function aggGoogle(sheets, dates) {
+  const ds = new Set(dates);
+  let imp=0,click=0,spend=0,purchase=0,revenue=0;
+  const byDate={},byKw={};
+  // 루커 시트: 기본 지표
+  const main = Object.values(sheets)[0] || [];
+  main.forEach(r => {
+    const d=toKey(r['일']); if(!d||!ds.has(d)) return;
+    const im=n(r['노출수']),cl=n(r['클릭수']),sp=n(r['비용']);
+    imp+=im;click+=cl;spend+=sp;
+    if(!byDate[d])byDate[d]={imp:0,click:0,spend:0};
+    byDate[d].imp+=im;byDate[d].click+=cl;byDate[d].spend+=sp;
+    const kw=r['검색 키워드']||'(알 수 없음)';
+    if(!byKw[kw])byKw[kw]={imp:0,click:0,spend:0,conv:0};
+    byKw[kw].imp+=im;byKw[kw].click+=cl;byKw[kw].spend+=sp;
+  });
+  // 루커_전환 시트: Purchase 전환
+  const convSheet = Object.values(sheets)[1] || [];
+  convSheet.forEach(r => {
+    const d=toKey(r['일']); if(!d||!ds.has(d)) return;
+    const pu=n(r['Google Channel Purchase_모든 전환']);
+    const rv=n(r['Google Channel Purchase_모든 전환 가치']);
+    purchase+=pu;revenue+=rv;
+    const kw=r['검색 키워드']||'(알 수 없음)';
+    if(!byKw[kw])byKw[kw]={imp:0,click:0,spend:0,conv:0};
+    byKw[kw].conv+=pu;
+  });
+  return{imp,click,spend,purchase,revenue,byDate,byKw,
+    ctr:imp>0?(click/imp*100):0,cpc:click>0?(spend/click):0,
+    cpa:purchase>0?(spend/purchase):0,roas:spend>0?(revenue/spend*100):0};
+}
+
+function aggNaver(rows, dates) {
+  const ds = new Set(dates);
+  let imp=0,click=0,spend=0,purchase=0,revenue=0;
+  const byDate={},byKw={};
+  rows.forEach(r => {
+    const d=toKey(r['일별']); if(!d||!ds.has(d)) return;
+    const im=n(r['노출수']),cl=n(r['클릭수']),sp=n(r['총비용']),
+          pu=n(r['구매완료 전환수']),rv=n(r['구매완료 전환매출액(원)']);
+    imp+=im;click+=cl;spend+=sp;purchase+=pu;revenue+=rv;
+    if(!byDate[d])byDate[d]={imp:0,click:0,spend:0};
+    byDate[d].imp+=im;byDate[d].click+=cl;byDate[d].spend+=sp;
+    const kw=r['키워드']||'(자상호)';
+    if(!byKw[kw])byKw[kw]={imp:0,click:0,spend:0,purchase:0,rank:[]};
+    byKw[kw].imp+=im;byKw[kw].click+=cl;byKw[kw].spend+=sp;byKw[kw].purchase+=pu;
+    if(r['평균노출순위']&&r['평균노출순위']!=='-') byKw[kw].rank.push(n(r['평균노출순위']));
+  });
+  return{imp,click,spend,purchase,revenue,byDate,byKw,
+    ctr:imp>0?(click/imp*100):0,cpc:click>0?(spend/click):0,
+    cpa:purchase>0?(spend/purchase):0,roas:spend>0?(revenue/spend*100):0};
+}
+
+// ── 월 목록 추출 ──
+function extractMonths(metaRaw, googleRaw, naverRaw) {
+  const months = new Set();
+  if (metaRaw) metaRaw.forEach(r => { const m=toMonth(r['일']); if(m) months.add(m); });
+  if (googleRaw) {
+    Object.values(googleRaw)[0]?.forEach(r => { const m=toMonth(r['일']); if(m) months.add(m); });
+  }
+  if (naverRaw) naverRaw.forEach(r => { const m=toMonth(r['일별']); if(m) months.add(m); });
+  return [...months].sort();
+}
+
+function getDates(raw, dateKey, month) {
+  if (!raw) return [];
+  const all = raw.flatMap ? raw : Object.values(raw)[0] || [];
+  return [...new Set(all.map(r => toKey(r[dateKey])).filter(d => d && d.startsWith(month)))].sort();
+}
+
+// ── diff badge ──
+function diffBadge(cur, prev) {
+  if (!prev || prev === 0) return '<span class="kpi-diff nc">—</span>';
+  const d = ((cur-prev)/prev*100);
+  const cls = d >= 0 ? 'up' : 'dn';
+  const arrow = d >= 0 ? '▲' : '▼';
+  return `<span class="kpi-diff ${cls}">${arrow} ${Math.abs(d).toFixed(1)}%</span>`;
+}
+
+// ── KPI Cards ──
+function renderKPI(containerId, metrics) {
+  document.getElementById(containerId).innerHTML = metrics.map(m => `
+    <div class="kpi-card">
+      <div class="kpi-label">${m.label}</div>
+      <div class="kpi-value">${m.value}</div>
+      <div class="kpi-unit">${m.unit}</div>
+      ${diffBadge(m.raw, m.prev)}
+    </div>`).join('');
+}
+
+// ── 차트 생성 ──
+function makeChart(id, config) {
+  const existing = Chart.getChart(id);
+  if (existing) existing.destroy();
+  const ctx = document.getElementById(id)?.getContext('2d');
+  if (!ctx) return;
+  const chart = new Chart(ctx, config);
+  STATE.charts.push(chart);
+  return chart;
+}
+
+const CHART_OPTS = {
+  responsive: true,
+  interaction: { mode:'index', intersect:false },
+  plugins: { legend: { labels: { color:'#6e6e73', font:{ size:11, family:'Noto Sans KR' }, boxWidth:12 } } },
+  scales: {
+    x: { ticks:{ color:'#86868b', font:{size:10} }, grid:{ color:'#f0f0f5' } },
+    y: { ticks:{ color:'#86868b', font:{size:10} }, grid:{ color:'#f0f0f5' } },
+  }
+};
+
+// ── 메인 빌드 ──
+function buildDashboard() {
+  document.getElementById('loading').style.display = 'flex';
+
+  setTimeout(() => {
+    try {
+      // 업종 자동 감지
+      STATE.industry = detectIndustry(STATE.metaRaw);
+      const months = extractMonths(STATE.metaRaw, STATE.googleRaw, STATE.naverRaw);
+      STATE.months = months;
+
+      // 클라이언트명
+      let clientName = '—';
+      if (STATE.metaRaw?.length) {
+        const c = STATE.metaRaw[0]['캠페인 이름'] || '';
+        const m = c.match(/\[(.+?)\]/);
+        clientName = m ? m[1] : c.split(' ')[0];
+      }
+      document.getElementById('nav-client').textContent = clientName;
+      // 업종 배지 표시
+      const industryBadge = STATE.industry === 'db'
+        ? '<span style="background:#e8fdf0;color:#1d7340;border:1px solid #1d7340;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;margin-left:8px">📋 DB업종</span>'
+        : '<span style="background:#e8f0fe;color:#0071e3;border:1px solid #0071e3;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;margin-left:8px">🛒 커머스</span>';
+      document.getElementById('nav-client').innerHTML = clientName + industryBadge;
+
+      // 월 탭
+      const mtabs = document.getElementById('month-tabs');
+      mtabs.innerHTML = months.map((m,i) => `
+        <button class="month-tab ${i===months.length-1?'active':''}"
+          onclick="switchMonth('${m}')">${m.slice(0,4)}년 ${m.slice(5,7)}월</button>`).join('');
+
+      // 매체 탭
+      const mediaTabs = [];
+      if (STATE.metaRaw) mediaTabs.push({ id:'meta', label:'META', dotColor:'#1877f2' });
+      if (STATE.googleRaw) mediaTabs.push({ id:'google', label:'Google SA', dotColor:'#4285f4' });
+      if (STATE.naverRaw) mediaTabs.push({ id:'naver', label:'Naver SA', dotColor:'#03c75a' });
+
+      document.getElementById('media-tabs').innerHTML = mediaTabs.map((t,i) => `
+        <button class="media-tab ${i===0?'active-'+t.id:''}" id="tab-${t.id}" onclick="switchMedia('${t.id}')">
+          <span class="media-dot" style="background:${t.dotColor}"></span>${t.label}
+        </button>`).join('');
+
+      STATE.currentMonth = months[months.length-1];
+      STATE.prevMonth = months.length >= 2 ? months[months.length-2] : null;
+      STATE.currentMedia = mediaTabs[0]?.id || 'meta';
+
+      updateCompareBanner();
+      renderMediaPanel(STATE.currentMedia);
+
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('upload-screen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+
+    } catch(err) {
+      document.getElementById('loading').style.display = 'none';
+      alert('분석 중 오류가 발생했습니다: ' + err.message);
+      console.error(err);
+    }
+  }, 200);
+}
+
+function switchMonth(m) {
+  STATE.currentMonth = m;
+  const idx = STATE.months.indexOf(m);
+  STATE.prevMonth = idx > 0 ? STATE.months[idx-1] : null;
+  document.querySelectorAll('.month-tab').forEach((t,i) => {
+    t.classList.toggle('active', STATE.months[STATE.months.length-1-i] === m ||
+      t.textContent.includes(m.slice(0,4)+'년 '+m.slice(5,7)+'월'));
+  });
+  // 재렌더
+  document.querySelectorAll('.month-tab').forEach(t => t.classList.remove('active'));
+  [...document.querySelectorAll('.month-tab')].find(t =>
+    t.textContent.trim() === m.slice(0,4)+'년 '+m.slice(5,7)+'월')?.classList.add('active');
+  updateCompareBanner();
+  renderMediaPanel(STATE.currentMedia);
+}
+
+function switchMedia(media) {
+  STATE.currentMedia = media;
+  // 탭 스타일
+  document.querySelectorAll('.media-tab').forEach(t => {
+    t.className = 'media-tab';
+  });
+  document.getElementById('tab-'+media)?.classList.add('active-'+media);
+  // 패널
+  document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+media)?.classList.add('active');
+  renderMediaPanel(media);
+}
+
+function updateCompareBanner() {
+  const m = STATE.currentMonth;
+  const p = STATE.prevMonth;
+  document.getElementById('cp-curr').textContent = m ? m.slice(0,4)+'년 '+m.slice(5,7)+'월' : '—';
+  document.getElementById('cp-prev').textContent = p ? p.slice(0,4)+'년 '+p.slice(5,7)+'월' : '데이터 없음';
+}
+
+function renderMediaPanel(media) {
+  document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+media)?.classList.add('active');
+
+  const cm = STATE.currentMonth;
+  const pm = STATE.prevMonth;
+
+  if (media === 'meta' && STATE.metaRaw) renderMeta(cm, pm);
+  if (media === 'google' && STATE.googleRaw) renderGoogle(cm, pm);
+  if (media === 'naver' && STATE.naverRaw) renderNaver(cm, pm);
+}
+
+// ── META 렌더 ──
+function renderMeta(cm, pm) {
+  const raw = STATE.metaRaw;
+  let cmDates, pmDates;
+  if (STATE._overrideDates) {
+    cmDates = STATE._overrideDates.curr;
+    pmDates = STATE._overrideDates.prev || [];
+  } else {
+    cmDates = [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
+    pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  }
+
+  const TM = aggMeta(raw, cmDates);
+  const LM = pm ? aggMeta(raw, pmDates) : {};
+
+  // KPI - 업종별 분기
+  const isDB = STATE.industry === 'db';
+  renderKPI('meta-kpi', [
+    { label:'노출수', value:fmt(TM.imp), unit:'IMPRESSIONS', raw:TM.imp, prev:LM.imp },
+    { label:'클릭수', value:fmt(TM.click), unit:'CLICKS', raw:TM.click, prev:LM.click },
+    { label:'CTR', value:fmtP(TM.ctr), unit:'CLICK-THROUGH RATE', raw:TM.ctr, prev:LM.ctr },
+    { label:'CPC', value:fmtW(TM.cpc), unit:'COST PER CLICK', raw:TM.cpc, prev:LM.cpc },
+    { label:'총 지출', value:fmt(TM.spend), unit:'TOTAL SPEND (KRW)', raw:TM.spend, prev:LM.spend },
+    isDB
+      ? { label:'리드/문의수', value:fmtN(TM.purchase), unit:'LEADS', raw:TM.purchase, prev:LM.purchase }
+      : { label:'구매수', value:fmtN(TM.purchase), unit:'PURCHASES', raw:TM.purchase, prev:LM.purchase },
+    { label:'CPL/CPA', value:TM.purchase>0?fmtW(TM.cpa):'—', unit:isDB?'COST PER LEAD':'COST PER ACTION', raw:TM.cpa, prev:LM.cpa },
+    isDB
+      ? { label:'리드율', value:TM.click>0?fmtP(TM.purchase/TM.click*100):'—', unit:'LEAD RATE', raw:TM.purchase/TM.click*100, prev:LM.purchase/LM.click*100 }
+      : { label:'ROAS', value:TM.roas>0?fmtP(TM.roas):'—', unit:'RETURN ON AD SPEND', raw:TM.roas, prev:LM.roas },
+  ]);
+
+  // 차트
+  const labels = cmDates.map(d=>dayLabel(d));
+  const COLOR = { meta:'#1877f2', meta_light:'rgba(24,119,242,.12)' };
+
+  makeChart('meta-chart-daily', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'금월 노출', data:cmDates.map(d=>TM.byDate[d]?.imp||0), borderColor:'#1877f2', backgroundColor:'rgba(24,119,242,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y' },
+      { label:'전월 노출', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.imp||0), borderColor:'#1877f2', borderDash:[4,3], tension:.4, pointRadius:0, yAxisID:'y' },
+      { label:'금월 클릭', data:cmDates.map(d=>TM.byDate[d]?.click||0), borderColor:'#34a853', backgroundColor:'rgba(52,168,83,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y1' },
+      { label:'전월 클릭', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.click||0), borderColor:'#34a853', borderDash:[4,3], tension:.4, pointRadius:0, yAxisID:'y1' },
+    ]},
+    options:{ ...CHART_OPTS, scales:{ x:{...CHART_OPTS.scales.x}, y:{...CHART_OPTS.scales.y,position:'left'}, y1:{...CHART_OPTS.scales.y,position:'right',grid:{display:false}} }}
+  });
+
+  // 파이차트
+  const campNames = Object.keys(TM.byCamp).sort((a,b)=>TM.byCamp[b].spend-TM.byCamp[a].spend);
+  const pieColors = ['#1877f2','#34a853','#fbbc04','#ea4335','#9c27b0','#ff9800'];
+  makeChart('meta-chart-pie', {
+    type:'doughnut',
+    data:{ labels:campNames.map(c=>(c.match(/\] (.+)/)?.[1]||c).slice(0,16)), datasets:[{ data:campNames.map(c=>TM.byCamp[c].spend), backgroundColor:pieColors, borderColor:'#fff', borderWidth:3 }] },
+    options:{ responsive:true, plugins:{ legend:{ position:'bottom', labels:{ color:'#6e6e73', font:{size:10}, padding:8, boxWidth:10 } } } }
+  });
+
+  makeChart('meta-chart-spend', {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'금월', data:cmDates.map(d=>TM.byDate[d]?.spend||0), backgroundColor:'rgba(24,119,242,.7)', borderRadius:4 },
+      { label:'전월', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.spend||0), backgroundColor:'rgba(24,119,242,.2)', borderRadius:4 },
+    ]},
+    options:{ ...CHART_OPTS }
+  });
+
+  makeChart('meta-chart-ctr', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'금월 CTR', data:cmDates.map(d=>{ const dd=TM.byDate[d]; return dd&&dd.imp>0?(dd.click/dd.imp*100):0; }), borderColor:'#fbbc04', backgroundColor:'rgba(251,188,4,.08)', fill:true, tension:.4, pointRadius:2 },
+      { label:'전월 CTR', data:pmDates.map((_,i)=>{ const dd=LM.byDate?.[pmDates[i]]; return dd&&dd.imp>0?(dd.click/dd.imp*100):0; }), borderColor:'#fbbc04', borderDash:[4,3], tension:.4, pointRadius:0 },
+    ]},
+    options:{ ...CHART_OPTS, scales:{ x:CHART_OPTS.scales.x, y:{ ...CHART_OPTS.scales.y, ticks:{ ...CHART_OPTS.scales.y.ticks, callback:v=>v.toFixed(2)+'%' } } } }
+  });
+
+  // 소재 테이블
+  const top10 = Object.entries(TM.byAd).sort((a,b)=>b[1].spend-a[1].spend).slice(0,10);
+  document.getElementById('meta-creative-table').innerHTML = top10.map(([name,d],i) => {
+    const ctr=d.imp>0?(d.click/d.imp*100):0;
+    const cpa=d.purchase>0?(d.spend/d.purchase):0;
+    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    return `<tr>
+      <td><span class="rank-pill ${rc}">${i+1}</span></td>
+      <td title="${name}">${name.slice(0,28)}${name.length>28?'…':''}</td>
+      <td>${d.adset.slice(0,18)}</td>
+      <td class="num">${fmtN(d.imp)}</td>
+      <td class="num">${fmtN(d.click)}</td>
+      <td class="num">${fmtP(ctr)}</td>
+      <td class="num">${fmtN(d.spend)}</td>
+      <td class="num">${d.purchase>0?fmtW(cpa):'—'}</td>
+      <td class="num">${fmtN(d.purchase)}</td>
+    </tr>`;
+  }).join('');
+
+  // 인사이트
+  document.getElementById('meta-insight-period').textContent = `${cm} vs ${pm||'—'}`;
+  renderInsights('meta-insights', generateMetaInsights(TM, LM, top10, cm, pm));
+}
+
+// ── GOOGLE 렌더 ──
+function renderGoogle(cm, pm) {
+  const sheets = STATE.googleRaw;
+  const mainSheet = Object.values(sheets)[0] || [];
+  let cmDates, pmDates;
+  if (STATE._overrideDates) {
+    cmDates = STATE._overrideDates.curr;
+    pmDates = STATE._overrideDates.prev || [];
+  } else {
+    cmDates = [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
+    pmDates = pm ? [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  }
+
+  const TM = aggGoogle(sheets, cmDates);
+  const LM = pm ? aggGoogle(sheets, pmDates) : {};
+
+  renderKPI('google-kpi', [
+    { label:'노출수', value:fmt(TM.imp), unit:'IMPRESSIONS', raw:TM.imp, prev:LM.imp },
+    { label:'클릭수', value:fmt(TM.click), unit:'CLICKS', raw:TM.click, prev:LM.click },
+    { label:'CTR', value:fmtP(TM.ctr), unit:'CLICK-THROUGH RATE', raw:TM.ctr, prev:LM.ctr },
+    { label:'CPC', value:fmtW(TM.cpc), unit:'COST PER CLICK', raw:TM.cpc, prev:LM.cpc },
+    { label:'CPA', value:TM.purchase>0?fmtW(TM.cpa):'—', unit:'COST PER ACTION', raw:TM.cpa, prev:LM.cpa },
+    { label:'총 비용', value:fmt(TM.spend), unit:'TOTAL SPEND (KRW)', raw:TM.spend, prev:LM.spend },
+    { label:'Purchase', value:fmtN(TM.purchase), unit:'CONVERSIONS', raw:TM.purchase, prev:LM.purchase },
+    { label:'ROAS', value:TM.roas>0?fmtP(TM.roas):'—', unit:'RETURN ON AD SPEND', raw:TM.roas, prev:LM.roas },
+  ]);
+
+  const labels = cmDates.map(d=>dayLabel(d));
+
+  makeChart('google-chart-daily', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'금월 노출', data:cmDates.map(d=>TM.byDate[d]?.imp||0), borderColor:'#4285f4', backgroundColor:'rgba(66,133,244,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y' },
+      { label:'전월 노출', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.imp||0), borderColor:'#4285f4', borderDash:[4,3], tension:.4, pointRadius:0, yAxisID:'y' },
+      { label:'금월 클릭', data:cmDates.map(d=>TM.byDate[d]?.click||0), borderColor:'#ea4335', backgroundColor:'rgba(234,67,53,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y1' },
+    ]},
+    options:{ ...CHART_OPTS, scales:{ x:CHART_OPTS.scales.x, y:{...CHART_OPTS.scales.y,position:'left'}, y1:{...CHART_OPTS.scales.y,position:'right',grid:{display:false}} }}
+  });
+
+  makeChart('google-chart-spend', {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'금월', data:cmDates.map(d=>TM.byDate[d]?.spend||0), backgroundColor:'rgba(66,133,244,.7)', borderRadius:4 },
+      { label:'전월', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.spend||0), backgroundColor:'rgba(66,133,244,.2)', borderRadius:4 },
+    ]},
+    options:{ ...CHART_OPTS }
+  });
+
+  // 키워드 테이블
+  const topKw = Object.entries(TM.byKw).sort((a,b)=>b[1].conv-a[1].conv).slice(0,10);
+  document.getElementById('google-keyword-table').innerHTML = topKw.map(([kw,d],i) => {
+    const ctr=d.imp>0?(d.click/d.imp*100):0;
+    const cpa=d.conv>0?(d.spend/d.conv):0;
+    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    return `<tr>
+      <td><span class="rank-pill ${rc}">${i+1}</span></td>
+      <td>${kw}</td>
+      <td class="num">${fmtN(d.imp)}</td>
+      <td class="num">${fmtN(d.click)}</td>
+      <td class="num">${fmtP(ctr)}</td>
+      <td class="num">${fmtN(d.spend)}</td>
+      <td class="num">${fmtN(d.conv)}</td>
+      <td class="num">${d.conv>0?fmtW(cpa):'—'}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('google-insight-period').textContent = `${cm} vs ${pm||'—'}`;
+  renderInsights('google-insights', generateGoogleInsights(TM, LM, topKw, cm, pm));
+}
+
+// ── NAVER 렌더 ──
+function renderNaver(cm, pm) {
+  const raw = STATE.naverRaw;
+  let cmDates, pmDates;
+  if (STATE._overrideDates) {
+    cmDates = STATE._overrideDates.curr;
+    pmDates = STATE._overrideDates.prev || [];
+  } else {
+    cmDates = [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(cm)))].sort();
+    pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  }
+
+  const TM = aggNaver(raw, cmDates);
+  const LM = pm ? aggNaver(raw, pmDates) : {};
+
+  renderKPI('naver-kpi', [
+    { label:'노출수', value:fmt(TM.imp), unit:'IMPRESSIONS', raw:TM.imp, prev:LM.imp },
+    { label:'클릭수', value:fmt(TM.click), unit:'CLICKS', raw:TM.click, prev:LM.click },
+    { label:'CTR', value:fmtP(TM.ctr), unit:'CLICK-THROUGH RATE', raw:TM.ctr, prev:LM.ctr },
+    { label:'CPC', value:fmtW(TM.cpc), unit:'COST PER CLICK', raw:TM.cpc, prev:LM.cpc },
+    { label:'CPA', value:TM.purchase>0?fmtW(TM.cpa):'—', unit:'COST PER ACTION (구매완료)', raw:TM.cpa, prev:LM.cpa },
+    { label:'총 비용', value:fmt(TM.spend), unit:'TOTAL SPEND (KRW)', raw:TM.spend, prev:LM.spend },
+    { label:'구매완료', value:fmtN(TM.purchase), unit:'실구매 전환수', raw:TM.purchase, prev:LM.purchase },
+    { label:'ROAS', value:TM.roas>0?fmtP(TM.roas):'—', unit:'RETURN ON AD SPEND', raw:TM.roas, prev:LM.roas },
+  ]);
+
+  const labels = cmDates.map(d=>dayLabel(d));
+
+  makeChart('naver-chart-daily', {
+    type:'line',
+    data:{ labels, datasets:[
+      { label:'금월 노출', data:cmDates.map(d=>TM.byDate[d]?.imp||0), borderColor:'#03c75a', backgroundColor:'rgba(3,199,90,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y' },
+      { label:'전월 노출', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.imp||0), borderColor:'#03c75a', borderDash:[4,3], tension:.4, pointRadius:0, yAxisID:'y' },
+      { label:'금월 클릭', data:cmDates.map(d=>TM.byDate[d]?.click||0), borderColor:'#1877f2', backgroundColor:'rgba(24,119,242,.08)', fill:true, tension:.4, pointRadius:2, yAxisID:'y1' },
+    ]},
+    options:{ ...CHART_OPTS, scales:{ x:CHART_OPTS.scales.x, y:{...CHART_OPTS.scales.y,position:'left'}, y1:{...CHART_OPTS.scales.y,position:'right',grid:{display:false}} }}
+  });
+
+  makeChart('naver-chart-spend', {
+    type:'bar',
+    data:{ labels, datasets:[
+      { label:'금월', data:cmDates.map(d=>TM.byDate[d]?.spend||0), backgroundColor:'rgba(3,199,90,.7)', borderRadius:4 },
+      { label:'전월', data:pmDates.map((_,i)=>LM.byDate?.[pmDates[i]]?.spend||0), backgroundColor:'rgba(3,199,90,.2)', borderRadius:4 },
+    ]},
+    options:{ ...CHART_OPTS }
+  });
+
+  // 키워드 테이블
+  const topKw = Object.entries(TM.byKw).sort((a,b)=>b[1].purchase-a[1].purchase).slice(0,10);
+  document.getElementById('naver-keyword-table').innerHTML = topKw.map(([kw,d],i) => {
+    const ctr=d.imp>0?(d.click/d.imp*100):0;
+    const cpa=d.purchase>0?(d.spend/d.purchase):0;
+    const avgRank=d.rank.length>0?(d.rank.reduce((a,b)=>a+b,0)/d.rank.length).toFixed(1):'-';
+    const rc=i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'rank-n';
+    return `<tr>
+      <td><span class="rank-pill ${rc}">${i+1}</span></td>
+      <td>${kw}</td>
+      <td class="num">${fmtN(d.imp)}</td>
+      <td class="num">${fmtN(d.click)}</td>
+      <td class="num">${fmtP(ctr)}</td>
+      <td class="num">${fmtN(d.spend)}</td>
+      <td class="num">${fmtN(d.purchase)}</td>
+      <td class="num">${d.purchase>0?fmtW(cpa):'—'}</td>
+      <td class="num">${avgRank}</td>
+    </tr>`;
+  }).join('');
+
+  document.getElementById('naver-insight-period').textContent = `${cm} vs ${pm||'—'}`;
+  renderInsights('naver-insights', generateNaverInsights(TM, LM, topKw, cm, pm));
+}
+
+// ── 인사이트 렌더 ──
+function renderInsights(containerId, items) {
+  document.getElementById(containerId).innerHTML = items.map((text,i) => `
+    <div class="insight-item">
+      <div class="insight-num">${i+1}</div>
+      <div class="insight-text">${text}</div>
+    </div>`).join('');
+}
+
+function pct(a,b) { return b>0?((a-b)/b*100):null; }
+function pctStr(a,b) { const p=pct(a,b); return p===null?null:`${p>=0?'+':''}${p.toFixed(1)}%`; }
+function pctTag(a,b) {
+  const p=pct(a,b);
+  if(p===null) return '';
+  return p>=0 ? `<span class="pos">${pctStr(a,b)}</span>` : `<span class="neg">${pctStr(a,b)}</span>`;
+}
+
+function generateMetaInsights(TM, LM, top10, cm, pm) {
+  const ins = [];
+  const hasPrev = LM.spend > 0;
+
+  if(hasPrev) {
+    const impD=pct(TM.imp,LM.imp), clkD=pct(TM.click,LM.click);
+    ins.push(`${cm} 노출수는 <strong>${fmt(TM.imp)}</strong>으로 전월 대비 ${pctTag(TM.imp,LM.imp)} ${impD>=0?'증가하였으며':'감소하였으며'}, 클릭수는 <strong>${fmt(TM.click)}</strong>으로 ${pctTag(TM.click,LM.click)} ${clkD>=0?'증가하였습니다.':'감소하였습니다.'}`);
+  }
+
+  if(hasPrev) {
+    const ctrD=(TM.ctr-LM.ctr).toFixed(2);
+    ins.push(`금월 CTR은 <strong>${fmtP(TM.ctr)}</strong>으로 전월(${fmtP(LM.ctr)}) 대비 <strong>${ctrD>=0?'+':''}${ctrD}%p</strong> ${ctrD>=0?'개선되었습니다. 소재 반응도가 향상된 것으로 판단됩니다.':'하락하였습니다. 소재 피로도 및 타겟 점검을 진행할 예정입니다.'}`);
+  }
+
+  if(hasPrev&&TM.roas>0) {
+    const roasD=pct(TM.roas,LM.roas);
+    ins.push(`금월 총 지출 <strong>${fmt(TM.spend)}원</strong>, ROAS <strong>${fmtP(TM.roas)}</strong>으로 전월 대비 ${pctTag(TM.roas,LM.roas)} ${roasD>=0?'개선되었습니다. 성과 우수 캠페인 예산 확대를 검토 진행 예정입니다.':'하락하였습니다. 전환 효율 최적화를 우선 검토하겠습니다.'}`);
+  }
+
+  if(TM.cpa>0&&hasPrev&&LM.cpa>0) {
+    const cpaD=pct(TM.cpa,LM.cpa);
+    ins.push(`금월 CPA는 <strong>${fmtW(TM.cpa)}</strong>으로 전월 대비 ${pctTag(TM.cpa,LM.cpa)} ${cpaD<=0?'효율이 개선되었습니다. 현 구조 유지 및 확장을 고려하겠습니다.':'증가하였습니다. 입찰 전략 및 타겟 재검토를 진행하겠습니다.'}`);
+  }
+
+  if(top10.length>0) {
+    const [name,d]=top10[0];
+    const ctr=d.imp>0?(d.click/d.imp*100):0;
+    ins.push(`금월 지출 1위 소재 "<strong>${name.slice(0,25)}</strong>"의 CTR은 ${fmtP(ctr)}로 ${ctr>TM.ctr?'전체 평균 대비 우수한 성과를 기록하였습니다. 유사 소재 확장을 검토 진행 예정입니다.':'전체 평균 대비 낮은 수준으로, 소재 교체 및 신규 크리에이티브 테스트를 고려하겠습니다.'}`);
+  }
+
+  return ins;
+}
+
+function generateGoogleInsights(TM, LM, topKw, cm, pm) {
+  const ins = [];
+  const hasPrev = LM.spend > 0;
+
+  if(hasPrev) {
+    ins.push(`${cm} 구글 SA 노출수는 <strong>${fmt(TM.imp)}</strong>으로 전월 대비 ${pctTag(TM.imp,LM.imp)}, 클릭수는 <strong>${fmt(TM.click)}</strong>으로 ${pctTag(TM.click,LM.click)} 변동하였습니다.`);
+  }
+
+  if(hasPrev) {
+    const ctrD=(TM.ctr-LM.ctr).toFixed(2);
+    ins.push(`금월 CTR은 <strong>${fmtP(TM.ctr)}</strong>으로 전월 대비 <strong>${ctrD>=0?'+':''}${ctrD}%p</strong> ${ctrD>=0?'향상되었습니다. 광고 문구 및 키워드 매칭 전략이 효과적으로 작동하고 있습니다.':'하락하였습니다. 광고 소재 및 키워드 품질 점검을 진행하겠습니다.'}`);
+  }
+
+  if(TM.purchase>0) {
+    ins.push(`금월 Purchase 전환수는 <strong>${fmtN(TM.purchase)}건</strong>${hasPrev&&LM.purchase>0?`, 전월 대비 ${pctTag(TM.purchase,LM.purchase)} 변동하였습니다`:'입니다'}. CPA는 <strong>${fmtW(TM.cpa)}</strong>으로 집계되었습니다.`);
+  }
+
+  if(topKw.length>0) {
+    const [kw,d]=topKw[0];
+    ins.push(`전환 1위 키워드는 "<strong>${kw}</strong>"로 ${fmtN(d.conv)}건의 Purchase 전환을 기록하였습니다. 해당 키워드 입찰가 최적화 및 예산 배분을 우선 검토하겠습니다.`);
+  }
+
+  if(hasPrev) {
+    const spendD=pct(TM.spend,LM.spend);
+    ins.push(`금월 총 비용은 <strong>${fmt(TM.spend)}원</strong>으로 전월 대비 ${pctTag(TM.spend,LM.spend)} ${spendD>=0?'증가하였습니다.':'감소하였습니다.'} ${TM.roas>0?('ROAS는 <strong>'+fmtP(TM.roas)+'</strong>으로 집계되었습니다.'):''}`);
+  }
+
+  return ins;
+}
+
+function generateNaverInsights(TM, LM, topKw, cm, pm) {
+  const ins = [];
+  const hasPrev = LM.spend > 0;
+
+  if(hasPrev) {
+    ins.push(`${cm} 네이버 SA 노출수는 <strong>${fmt(TM.imp)}</strong>으로 전월 대비 ${pctTag(TM.imp,LM.imp)}, 클릭수는 <strong>${fmt(TM.click)}</strong>으로 ${pctTag(TM.click,LM.click)} 변동하였습니다.`);
+  }
+
+  if(TM.purchase>0) {
+    ins.push(`금월 구매완료 전환수(실구매 기준)는 <strong>${fmtN(TM.purchase)}건</strong>${hasPrev&&LM.purchase>0?`, 전월 대비 ${pctTag(TM.purchase,LM.purchase)} 변동하였습니다`:'입니다'}. CPA는 <strong>${fmtW(TM.cpa)}</strong>으로 집계되었습니다.`);
+  }
+
+  if(hasPrev&&LM.cpa>0&&TM.cpa>0) {
+    const cpaD=pct(TM.cpa,LM.cpa);
+    ins.push(`CPA는 전월(${fmtW(LM.cpa)}) 대비 ${pctTag(TM.cpa,LM.cpa)} ${cpaD<=0?'개선되었습니다. 전환 효율 향상 키워드 중심 예산 확대를 진행하겠습니다.':'증가하였습니다. 전환율 낮은 키워드 입찰가 조정 및 키워드 정비를 검토하겠습니다.'}`);
+  }
+
+  if(topKw.length>0) {
+    const [kw,d]=topKw[0];
+    const avgRank=d.rank.length>0?(d.rank.reduce((a,b)=>a+b,0)/d.rank.length).toFixed(1):'-';
+    ins.push(`전환 1위 키워드는 "<strong>${kw}</strong>"로 ${fmtN(d.purchase)}건의 구매완료 전환을 기록하였으며, 평균 노출 순위는 <strong>${avgRank}위</strong>입니다. 해당 키워드 상위 노출 유지를 위한 입찰가 관리를 지속하겠습니다.`);
+  }
+
+  if(hasPrev) {
+    const spendD=pct(TM.spend,LM.spend);
+    ins.push(`금월 총 비용은 <strong>${fmt(TM.spend)}원</strong>으로 전월 대비 ${pctTag(TM.spend,LM.spend)} ${spendD>=0?'증가하였습니다.':'감소하였습니다.'} 전환 성과 대비 효율적인 예산 운영 여부를 지속 모니터링하겠습니다.`);
+  }
+
+  return ins;
+}
+</script>
+</body>
+</html>
