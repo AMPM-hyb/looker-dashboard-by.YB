@@ -557,6 +557,75 @@ body {
   box-shadow: 0 4px 20px rgba(0,113,227,.3);
 }
 
+/* ── 업로드 모드 탭 ── */
+.upload-mode-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 4px;
+}
+.upload-mode-tab {
+  flex: 1;
+  padding: 9px 0;
+  border: none;
+  border-radius: 9px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--subtext);
+  background: transparent;
+  cursor: pointer;
+  transition: all .2s;
+}
+.upload-mode-tab.active {
+  background: var(--surface);
+  color: var(--text);
+  box-shadow: 0 1px 4px rgba(0,0,0,.08);
+}
+
+/* ── 시트 연동 UI ── */
+.sheet-connect-wrap { display: flex; flex-direction: column; gap: 12px; padding: 4px 0 8px; }
+.sheet-connect-desc { font-size: 13px; color: var(--subtext); text-align: center; line-height: 1.6; margin-bottom: 4px; }
+.sheet-input-group { display: flex; flex-direction: column; gap: 6px; }
+.sheet-input-label { font-size: 12px; font-weight: 700; color: var(--subtext); }
+.sheet-input-row { display: flex; align-items: center; gap: 8px; }
+.sheet-url-input {
+  flex: 1;
+  border: 1.5px solid var(--border);
+  border-radius: 9px;
+  padding: 10px 13px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 12px;
+  color: var(--text);
+  background: var(--surface);
+  outline: none;
+  transition: border-color .2s;
+}
+.sheet-url-input:focus { border-color: var(--accent); }
+.sheet-status-dot { font-size: 14px; color: var(--border); transition: color .3s; }
+.sheet-status-dot.ok { color: #1d7340; }
+.sheet-status-dot.err { color: #c62828; }
+.sheet-fetch-btn {
+  width: 100%;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 10px;
+  padding: 12px;
+  font-family: 'Pretendard', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .2s;
+  margin-top: 4px;
+}
+.sheet-fetch-btn:hover { background: var(--accent-hover); }
+.sheet-fetch-status { font-size: 12px; color: var(--subtext); text-align: center; min-height: 18px; }
+.sheet-status-list { display: flex; flex-direction: column; gap: 10px; padding: 4px 0; }
+.sheet-status-item { display: flex; align-items: center; justify-content: space-between; padding: 10px 14px; background: var(--bg); border-radius: 10px; }
+
 .upload-note {
   margin-top: 20px;
   font-size: 12px;
@@ -971,6 +1040,145 @@ tbody td {
 .insight-period { font-size: 12px; color: var(--subtext2); }
 
 .insight-divider { height: 1px; background: var(--border-light); margin-bottom: 20px; }
+/* ── 마케터 코멘트 영역 ── */
+.comment-section {
+  margin-top: 20px;
+  border-top: 1px solid var(--border-light);
+  padding-top: 16px;
+}
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+.comment-label {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--subtext);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.comment-label span { font-size: 13px; }
+.comment-add-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 6px 14px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: background .2s;
+}
+.comment-add-btn:hover { background: var(--accent-hover); }
+/* 코멘트 입력 폼 */
+.comment-input-wrap {
+  display: none;
+  margin-bottom: 14px;
+  background: var(--bg);
+  border-radius: 12px;
+  padding: 14px;
+  border: 1px solid var(--border-light);
+}
+.comment-input-wrap.open { display: block; }
+.comment-box {
+  width: 100%;
+  min-height: 72px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  font-size: 13.5px;
+  color: var(--text);
+  background: var(--surface);
+  resize: vertical;
+  box-sizing: border-box;
+  line-height: 1.6;
+  transition: border-color .2s;
+  outline: none;
+}
+.comment-box:focus { border-color: var(--accent); }
+.comment-box::placeholder { color: var(--subtext2); }
+.comment-input-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 8px;
+}
+.comment-submit-btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 7px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+}
+.comment-cancel-btn {
+  background: transparent;
+  color: var(--subtext);
+  border: 1px solid var(--border);
+  border-radius: 7px;
+  padding: 6px 12px;
+  font-size: 13px;
+  cursor: pointer;
+  font-family: inherit;
+}
+/* 코멘트 아이템 (인사이트와 동일 스타일) */
+.comment-item {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  position: relative;
+}
+.comment-num {
+  width: 22px; height: 22px;
+  background: var(--accent-light);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--accent);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+.comment-text {
+  font-size: 14px;
+  color: var(--text);
+  line-height: 1.7;
+  flex: 1;
+}
+.comment-item-actions {
+  display: flex;
+  gap: 6px;
+  opacity: 0;
+  transition: opacity .2s;
+  flex-shrink: 0;
+}
+.comment-item:hover .comment-item-actions { opacity: 1; }
+.comment-edit-btn, .comment-del-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px 4px;
+  border-radius: 4px;
+  line-height: 1;
+}
+.comment-edit-btn:hover { background: var(--bg); }
+.comment-del-btn:hover { background: #fde8e8; }
+.comment-list { display: flex; flex-direction: column; gap: 12px; }
+
 
 .insight-items { display: flex; flex-direction: column; gap: 14px; }
 
@@ -1436,38 +1644,69 @@ function switchGuideTab(type) {
   </div>
 
   <div class="upload-card">
-    <div class="upload-zone" id="drop-zone">
-      <div class="upload-icon-wrap">📊</div>
-      <div class="upload-zone-title">파일을 여기에 드래그하거나</div>
-      <div class="upload-zone-desc">메타(.xlsx), 구글(.xlsx), 네이버(.csv)<br>파일을 한 번에 올려주세요</div>
-      <label class="upload-cta" for="file-input">파일 선택</label>
-      <input type="file" id="file-input" accept=".xlsx,.xls,.csv" multiple>
+    <!-- 모드 탭 -->
+    <div class="upload-mode-tabs">
+      <button class="upload-mode-tab active" id="tab-file" onclick="switchUploadMode('file')">📁 파일 업로드</button>
+      <button class="upload-mode-tab" id="tab-sheet" onclick="switchUploadMode('sheet')">🔗 구글 시트 연동</button>
     </div>
 
-    <button onclick="document.getElementById('guide-modal').classList.add('open')"
-      style="width:100%;background:#f5f5f7;border:1.5px solid #d2d2d7;border-radius:10px;
-             padding:11px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;
-             color:#1d1d1f;cursor:pointer;margin-bottom:12px;transition:all .2s;display:flex;
-             align-items:center;justify-content:center;gap:6px;"
-      onmouseover="this.style.background='#e8e8ed'" 
-      onmouseout="this.style.background='#f5f5f7'">
-      📋 매체별 RAW 데이터 파일 업로드 가이드
-    </button>
-    <div class="file-slots">
-      <div class="file-slot" id="slot-meta">
-        <div class="slot-icon">📘</div>
-        <div class="slot-name">META</div>
-        <div class="slot-status" id="status-meta">대기 중</div>
+    <!-- 파일 업로드 모드 -->
+    <div id="mode-file">
+      <div class="upload-zone" id="drop-zone">
+        <div class="upload-icon-wrap">📊</div>
+        <div class="upload-zone-title">파일을 여기에 드래그하거나</div>
+        <div class="upload-zone-desc">메타(.xlsx), 구글(.xlsx), 네이버(.csv)<br>파일을 한 번에 올려주세요</div>
+        <label class="upload-cta" for="file-input">파일 선택</label>
+        <input type="file" id="file-input" accept=".xlsx,.xls,.csv" multiple>
       </div>
-      <div class="file-slot" id="slot-google">
-        <div class="slot-icon">🔍</div>
-        <div class="slot-name">GOOGLE</div>
-        <div class="slot-status" id="status-google">대기 중</div>
+      <button onclick="document.getElementById('guide-modal').classList.add('open')"
+        style="width:100%;background:#f5f5f7;border:1.5px solid #d2d2d7;border-radius:10px;
+               padding:11px;font-family:'Pretendard',sans-serif;font-size:13px;font-weight:600;
+               color:#1d1d1f;cursor:pointer;margin-bottom:12px;transition:all .2s;display:flex;
+               align-items:center;justify-content:center;gap:6px;"
+        onmouseover="this.style.background='#e8e8ed'" 
+        onmouseout="this.style.background='#f5f5f7'">
+        📋 매체별 RAW 데이터 파일 업로드 가이드
+      </button>
+      <div class="file-slots">
+        <div class="file-slot" id="slot-meta">
+          <div class="slot-icon">📘</div>
+          <div class="slot-name">META</div>
+          <div class="slot-status" id="status-meta">대기 중</div>
+        </div>
+        <div class="file-slot" id="slot-google">
+          <div class="slot-icon">🔍</div>
+          <div class="slot-name">GOOGLE</div>
+          <div class="slot-status" id="status-google">대기 중</div>
+        </div>
+        <div class="file-slot" id="slot-naver">
+          <div class="slot-icon">🟢</div>
+          <div class="slot-name">NAVER SA</div>
+          <div class="slot-status" id="status-naver">대기 중</div>
+        </div>
       </div>
-      <div class="file-slot" id="slot-naver">
-        <div class="slot-icon">🟢</div>
-        <div class="slot-name">NAVER SA</div>
-        <div class="slot-status" id="status-naver">대기 중</div>
+    </div>
+
+    <!-- 구글 시트 연동 모드 -->
+    <div id="mode-sheet" style="display:none;">
+      <div class="sheet-connect-wrap">
+        <div class="sheet-connect-desc">연동된 구글 시트에서<br>자동으로 데이터를 불러옵니다</div>
+        <div class="sheet-status-list">
+          <div class="sheet-status-item">
+            <span class="sheet-input-label">📘 META RAW</span>
+            <div class="sheet-status-dot" id="sheet-dot-meta">●</div>
+          </div>
+          <div class="sheet-status-item">
+            <span class="sheet-input-label">🔍 Google RAW</span>
+            <div class="sheet-status-dot" id="sheet-dot-google">●</div>
+          </div>
+          <div class="sheet-status-item">
+            <span class="sheet-input-label">🟢 Naver RAW</span>
+            <div class="sheet-status-dot" id="sheet-dot-naver">●</div>
+          </div>
+        </div>
+        <button class="sheet-fetch-btn" onclick="fetchSheetData()">🔄 데이터 불러오기</button>
+        <div class="sheet-fetch-status" id="sheet-fetch-status"></div>
       </div>
     </div>
 
@@ -1515,12 +1754,12 @@ function switchGuideTab(type) {
     <div class="compare-banner" id="compare-banner">
       <div class="compare-period">
         <div class="cp-box">
-          <div class="cp-label">전월</div>
+          <div class="cp-label" id="cp-label-prev">전월</div>
           <div class="cp-val" id="cp-prev">—</div>
         </div>
         <div class="cp-arrow">→</div>
         <div class="cp-box cp-this">
-          <div class="cp-label">금월</div>
+          <div class="cp-label" id="cp-label-curr">금월</div>
           <div class="cp-val" id="cp-curr">—</div>
         </div>
       </div>
@@ -1591,6 +1830,20 @@ function switchGuideTab(type) {
         </div>
         <div class="insight-divider"></div>
         <div class="insight-items" id="meta-insights"></div>
+        <div class="comment-section" id="meta-comment-section">
+          <div class="comment-header">
+            <div class="comment-label"><span>✏️</span> 마케터 코멘트</div>
+            <button class="comment-add-btn" onclick="toggleCommentInput('meta')">＋ 코멘트 추가</button>
+          </div>
+          <div class="comment-input-wrap" id="meta-comment-input-wrap">
+            <textarea class="comment-box" id="meta-comment-box" placeholder="이번 달 성과에 대한 코멘트나 다음 달 전략을 입력하세요..."></textarea>
+            <div class="comment-input-actions">
+              <button class="comment-cancel-btn" onclick="toggleCommentInput('meta')">취소</button>
+              <button class="comment-submit-btn" onclick="addComment('meta')">추가</button>
+            </div>
+          </div>
+          <div class="comment-list" id="meta-comment-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1646,6 +1899,20 @@ function switchGuideTab(type) {
         </div>
         <div class="insight-divider"></div>
         <div class="insight-items" id="google-insights"></div>
+        <div class="comment-section" id="google-comment-section">
+          <div class="comment-header">
+            <div class="comment-label"><span>✏️</span> 마케터 코멘트</div>
+            <button class="comment-add-btn" onclick="toggleCommentInput('google')">＋ 코멘트 추가</button>
+          </div>
+          <div class="comment-input-wrap" id="google-comment-input-wrap">
+            <textarea class="comment-box" id="google-comment-box" placeholder="이번 달 성과에 대한 코멘트나 다음 달 전략을 입력하세요..."></textarea>
+            <div class="comment-input-actions">
+              <button class="comment-cancel-btn" onclick="toggleCommentInput('google')">취소</button>
+              <button class="comment-submit-btn" onclick="addComment('google')">추가</button>
+            </div>
+          </div>
+          <div class="comment-list" id="google-comment-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1701,6 +1968,20 @@ function switchGuideTab(type) {
         </div>
         <div class="insight-divider"></div>
         <div class="insight-items" id="naver-insights"></div>
+        <div class="comment-section" id="naver-comment-section">
+          <div class="comment-header">
+            <div class="comment-label"><span>✏️</span> 마케터 코멘트</div>
+            <button class="comment-add-btn" onclick="toggleCommentInput('naver')">＋ 코멘트 추가</button>
+          </div>
+          <div class="comment-input-wrap" id="naver-comment-input-wrap">
+            <textarea class="comment-box" id="naver-comment-box" placeholder="이번 달 성과에 대한 코멘트나 다음 달 전략을 입력하세요..."></textarea>
+            <div class="comment-input-actions">
+              <button class="comment-cancel-btn" onclick="toggleCommentInput('naver')">취소</button>
+              <button class="comment-submit-btn" onclick="addComment('naver')">추가</button>
+            </div>
+          </div>
+          <div class="comment-list" id="naver-comment-list"></div>
+        </div>
       </div>
     </div>
 
@@ -1835,6 +2116,11 @@ function switchWeek(idx) {
   const prev = weeks[idx - 1];
   document.getElementById('cp-curr').textContent = weeks[idx].label;
   document.getElementById('cp-prev').textContent = prev ? prev.label : '이전 주 없음';
+  // 주차 모드일 때 레이블을 전주/금주로 변경
+  const labelPrev = document.getElementById('cp-label-prev');
+  const labelCurr = document.getElementById('cp-label-curr');
+  if (labelPrev) labelPrev.textContent = '전주';
+  if (labelCurr) labelCurr.textContent = '금주';
 
   // 주차 데이터로 렌더
   renderMediaPanelWithDates(
@@ -1853,44 +2139,19 @@ function renderMediaPanelWithDates(media, currDates, prevDates) {
   if (media === 'naver' && STATE.naverRaw) renderNaverWithDates(currDates, prevDates);
 }
 
-// 기존 switchMedia에 주차 모드 연동
-const origSwitchMedia = window.switchMedia;
-function switchMedia(media) {
-  STATE.currentMedia = media;
-  document.querySelectorAll('.media-tab').forEach(t => { t.className = 'media-tab'; });
-  document.getElementById('tab-'+media)?.classList.add('active-'+media);
-
-  if (periodMode === 'week' && currentWeek) {
-    const allDates = getAllDates();
-    const weeks = groupByWeek(allDates);
-    const idx = weeks.findIndex(w => w.dates.join() === currentWeek.dates.join());
-    const prev = idx > 0 ? weeks[idx-1] : null;
-    renderMediaPanelWithDates(media, currentWeek.dates, prev ? prev.dates : []);
-  } else {
-    renderMediaPanel(media);
-  }
-}
+// 주차/월별 모드 통합 switchMedia (중복 선언 제거됨)
 
 // renderMeta/Google/Naver의 주차 버전 (dates 직접 주입)
 function renderMetaWithDates(cmDates, pmDates) {
-  const savedMonth = STATE.currentMonth;
-  const savedPrev = STATE.prevMonth;
-  // 임시로 dates 배열 직접 사용
-  STATE._overrideDates = { curr: cmDates, prev: pmDates };
-  renderMeta(null, null); // null 전달 시 override 사용
-  STATE._overrideDates = null;
+  renderMetaDirect(cmDates, pmDates);
 }
 
 function renderGoogleWithDates(cmDates, pmDates) {
-  STATE._overrideDates = { curr: cmDates, prev: pmDates };
-  renderGoogle(null, null);
-  STATE._overrideDates = null;
+  renderGoogleDirect(cmDates, pmDates);
 }
 
 function renderNaverWithDates(cmDates, pmDates) {
-  STATE._overrideDates = { curr: cmDates, prev: pmDates };
-  renderNaver(null, null);
-  STATE._overrideDates = null;
+  renderNaverDirect(cmDates, pmDates);
 }
 
 // ── PDF 내보내기 ──
@@ -2398,6 +2659,124 @@ const CHART_OPTS = {
 };
 
 // ── 메인 빌드 ──
+
+// ── 구글 시트 연동 ──
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwu4LvY88Sl2VaXLyBwEXPDmEsGnvkd_S6UQKk9i2BZycsLfsAYLba6P7HNm42tKcrjRg/exec';
+const SHEET_NAMES = {
+  meta: 'META RAW',
+  google: 'Google RAW',
+  naver: 'Naver RAW'
+};
+
+function switchUploadMode(mode) {
+  document.getElementById('mode-file').style.display = mode === 'file' ? 'block' : 'none';
+  document.getElementById('mode-sheet').style.display = mode === 'sheet' ? 'block' : 'none';
+  document.getElementById('tab-file').classList.toggle('active', mode === 'file');
+  document.getElementById('tab-sheet').classList.toggle('active', mode === 'sheet');
+  // Apps Script 방식: URL 입력 불필요
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (!lines.length) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/^"|"$/g,''));
+  return lines.slice(1).filter(l => l.trim()).map(line => {
+    const vals = line.split(',').map(v => v.trim().replace(/^"|"$/g,''));
+    const obj = {};
+    headers.forEach((h,i) => obj[h] = vals[i] ?? '');
+    return obj;
+  });
+}
+
+// 시트 컬럼 → 대시보드 필드 변환
+function normalizeMetaRow(r) {
+  return {
+    '일': r['날짜'] || r['일'] || '',
+    '캠페인 이름': r['캠페인'] || r['캠페인 이름'] || '',
+    '광고 세트 이름': r['광고그룹'] || r['광고 세트 이름'] || '',
+    '광고 이름': r['소재명'] || r['광고 이름'] || '',
+    '노출': n(r['노출수'] || r['노출']),
+    '클릭(전체)': n(r['클릭수'] || r['클릭(전체)']),
+    '지출 금액 (KRW)': n(r['총비용'] || r['지출 금액 (KRW)'] || r['지출 금액']),
+    '구매': n(r['구매수'] || r['구매']),
+    '구매 전환값': n(r['구매전환매출액'] || r['구매 전환값']),
+    '_imageId': r['이미지ID'] || '',
+  };
+}
+
+function normalizeGoogleRow(r) {
+  return {
+    '일': r['날짜'] || r['일'] || '',
+    '캠페인': r['캠페인'] || '',
+    '광고그룹': r['광고그룹'] || '',
+    '검색 키워드': r['키워드'] || r['검색 키워드'] || '',
+    '노출수': n(r['노출수'] || r['노출']),
+    '클릭수': n(r['클릭수'] || r['클릭']),
+    '비용': n(r['총비용'] || r['비용']),
+    'Google Channel Purchase_모든 전환': n(r['전환수'] || r['전환']),
+    'Google Channel Purchase_모든 전환 가치': n(r['전환매출액'] || r['전환 가치']),
+  };
+}
+
+function normalizeNaverRow(r) {
+  return {
+    '일별': r['날짜'] || r['일별'] || r['일'] || '',
+    '캠페인': r['캠페인'] || '',
+    '광고그룹': r['광고그룹'] || '',
+    '키워드': r['키워드'] || '',
+    '노출수': n(r['노출수'] || r['노출']),
+    '클릭수': n(r['클릭수'] || r['클릭']),
+    '총비용': n(r['총비용'] || r['비용']),
+    '전환수': n(r['전환수'] || r['전환']),
+    '전환매출액': n(r['전환매출액'] || r['전환 가치']),
+  };
+}
+
+async function fetchSheetData() {
+  const statusEl = document.getElementById('sheet-fetch-status');
+  const btn = document.querySelector('.sheet-fetch-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ 불러오는 중...';
+  statusEl.textContent = '';
+
+  let loaded = 0;
+  const results = {};
+
+  for (const [media, sheetName] of Object.entries(SHEET_NAMES)) {
+    const dot = document.getElementById('sheet-dot-' + media);
+    try {
+      const url = APPS_SCRIPT_URL + '?sheet=' + encodeURIComponent(sheetName);
+      const res = await fetch(url);
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const rows = await res.json();
+      if (!rows.length) throw new Error('데이터 없음');
+      results[media] = rows;
+      dot.className = 'sheet-status-dot ok';
+      loaded++;
+    } catch(e) {
+      dot.className = 'sheet-status-dot err';
+      console.warn(media + ' fetch 실패:', e);
+    }
+  }
+
+  // STATE에 저장 (정규화 적용)
+  if (results.meta) STATE.metaRaw = results.meta.map(normalizeMetaRow);
+  if (results.google) STATE.googleRaw = { 'sheet1': results.google.map(normalizeGoogleRow) };
+  if (results.naver) STATE.naverRaw = results.naver.map(normalizeNaverRow);
+
+  btn.disabled = false;
+  btn.textContent = '🔄 데이터 불러오기';
+
+  if (loaded > 0) {
+    statusEl.textContent = `✅ ${loaded}개 매체 데이터 로드 완료`;
+    statusEl.style.color = '#1d7340';
+    document.getElementById('analyze-btn').classList.add('ready');
+  } else {
+    statusEl.textContent = '❌ 데이터를 불러오지 못했습니다.';
+    statusEl.style.color = '#c62828';
+  }
+}
+
 function buildDashboard() {
   document.getElementById('loading').style.display = 'flex';
 
@@ -2472,6 +2851,7 @@ function switchMonth(m) {
     t.textContent.trim() === m.slice(0,4)+'년 '+m.slice(5,7)+'월')?.classList.add('active');
   updateCompareBanner();
   renderMediaPanel(STATE.currentMedia);
+    loadComments();
 }
 
 function switchMedia(media) {
@@ -2484,7 +2864,17 @@ function switchMedia(media) {
   // 패널
   document.querySelectorAll('.media-panel').forEach(p => p.classList.remove('active'));
   document.getElementById('panel-'+media)?.classList.add('active');
-  renderMediaPanel(media);
+
+  // 주차 모드 / 월별 모드 분기
+  if (periodMode === 'week' && currentWeek) {
+    const allDates = getAllDates();
+    const weeks = groupByWeek(allDates);
+    const idx = weeks.findIndex(w => w.dates.join() === currentWeek.dates.join());
+    const prev = idx > 0 ? weeks[idx-1] : null;
+    renderMediaPanelWithDates(media, currentWeek.dates, prev ? prev.dates : []);
+  } else {
+    renderMediaPanel(media);
+  }
 }
 
 function updateCompareBanner() {
@@ -2492,6 +2882,11 @@ function updateCompareBanner() {
   const p = STATE.prevMonth;
   document.getElementById('cp-curr').textContent = m ? m.slice(0,4)+'년 '+m.slice(5,7)+'월' : '—';
   document.getElementById('cp-prev').textContent = p ? p.slice(0,4)+'년 '+p.slice(5,7)+'월' : '데이터 없음';
+  // 월별 모드 레이블
+  const labelPrev = document.getElementById('cp-label-prev');
+  const labelCurr = document.getElementById('cp-label-curr');
+  if (labelPrev) labelPrev.textContent = '전월';
+  if (labelCurr) labelCurr.textContent = '금월';
 }
 
 function renderMediaPanel(media) {
@@ -2507,19 +2902,24 @@ function renderMediaPanel(media) {
 }
 
 // ── META 렌더 ──
+function renderMetaDirect(cmDates, pmDates) {
+  renderMetaCore(cmDates, pmDates || []);
+}
+
 function renderMeta(cm, pm) {
   const raw = STATE.metaRaw;
-  let cmDates, pmDates;
-  if (STATE._overrideDates) {
-    cmDates = STATE._overrideDates.curr;
-    pmDates = STATE._overrideDates.prev || [];
-  } else {
-    cmDates = [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
-    pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
-  }
+  const cmDates = [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
+  const pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  renderMetaCore(cmDates, pmDates);
+}
+
+function renderMetaCore(cmDates, pmDates) {
+  const raw = STATE.metaRaw;
+  const cm = cmDates[0]?.slice(0,7) || '';
+  const pm = pmDates[0]?.slice(0,7) || null;
 
   const TM = aggMeta(raw, cmDates);
-  const LM = pm ? aggMeta(raw, pmDates) : {};
+  const LM = pmDates.length > 0 ? aggMeta(raw, pmDates) : {};
 
   // KPI - 업종별 분기
   const isDB = STATE.industry === 'db';
@@ -2602,23 +3002,30 @@ function renderMeta(cm, pm) {
   // 인사이트
   document.getElementById('meta-insight-period').textContent = `${cm} vs ${pm||'—'}`;
   renderInsights('meta-insights', generateMetaInsights(TM, LM, top10, cm, pm));
+  renderCommentList('meta');
 }
 
 // ── GOOGLE 렌더 ──
+function renderGoogleDirect(cmDates, pmDates) {
+  renderGoogleCore(cmDates, pmDates || []);
+}
+
 function renderGoogle(cm, pm) {
   const sheets = STATE.googleRaw;
   const mainSheet = Object.values(sheets)[0] || [];
-  let cmDates, pmDates;
-  if (STATE._overrideDates) {
-    cmDates = STATE._overrideDates.curr;
-    pmDates = STATE._overrideDates.prev || [];
-  } else {
-    cmDates = [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
-    pmDates = pm ? [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
-  }
+  const cmDates = [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(cm)))].sort();
+  const pmDates = pm ? [...new Set(mainSheet.map(r=>toKey(r['일'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  renderGoogleCore(cmDates, pmDates);
+}
+
+function renderGoogleCore(cmDates, pmDates) {
+  const sheets = STATE.googleRaw;
+  const mainSheet = Object.values(sheets)[0] || [];
+  const cm = cmDates[0]?.slice(0,7) || '';
+  const pm = pmDates[0]?.slice(0,7) || null;
 
   const TM = aggGoogle(sheets, cmDates);
-  const LM = pm ? aggGoogle(sheets, pmDates) : {};
+  const LM = pmDates.length > 0 ? aggGoogle(sheets, pmDates) : {};
 
   renderKPI('google-kpi', [
     { label:'노출수', value:fmt(TM.imp), unit:'IMPRESSIONS', raw:TM.imp, prev:LM.imp },
@@ -2672,22 +3079,28 @@ function renderGoogle(cm, pm) {
 
   document.getElementById('google-insight-period').textContent = `${cm} vs ${pm||'—'}`;
   renderInsights('google-insights', generateGoogleInsights(TM, LM, topKw, cm, pm));
+  renderCommentList('google');
 }
 
 // ── NAVER 렌더 ──
+function renderNaverDirect(cmDates, pmDates) {
+  renderNaverCore(cmDates, pmDates || []);
+}
+
 function renderNaver(cm, pm) {
   const raw = STATE.naverRaw;
-  let cmDates, pmDates;
-  if (STATE._overrideDates) {
-    cmDates = STATE._overrideDates.curr;
-    pmDates = STATE._overrideDates.prev || [];
-  } else {
-    cmDates = [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(cm)))].sort();
-    pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
-  }
+  const cmDates = [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(cm)))].sort();
+  const pmDates = pm ? [...new Set(raw.map(r=>toKey(r['일별'])).filter(d=>d&&d.startsWith(pm)))].sort() : [];
+  renderNaverCore(cmDates, pmDates);
+}
+
+function renderNaverCore(cmDates, pmDates) {
+  const raw = STATE.naverRaw;
+  const cm = cmDates[0]?.slice(0,7) || '';
+  const pm = pmDates[0]?.slice(0,7) || null;
 
   const TM = aggNaver(raw, cmDates);
-  const LM = pm ? aggNaver(raw, pmDates) : {};
+  const LM = pmDates.length > 0 ? aggNaver(raw, pmDates) : {};
 
   renderKPI('naver-kpi', [
     { label:'노출수', value:fmt(TM.imp), unit:'IMPRESSIONS', raw:TM.imp, prev:LM.imp },
@@ -2743,9 +3156,100 @@ function renderNaver(cm, pm) {
 
   document.getElementById('naver-insight-period').textContent = `${cm} vs ${pm||'—'}`;
   renderInsights('naver-insights', generateNaverInsights(TM, LM, topKw, cm, pm));
+  renderCommentList('naver');
 }
 
 // ── 인사이트 렌더 ──
+
+// ── 마케터 코멘트 기능 ──
+function getCommentKey(media) {
+  const client = document.getElementById('nav-client')?.innerText?.trim().split(' ')[0] || 'default';
+  return `looker_comments_${client}_${media}`;
+}
+
+function loadComments() {
+  ['meta', 'google', 'naver'].forEach(media => renderCommentList(media));
+}
+
+function getComments(media) {
+  try { return JSON.parse(localStorage.getItem(getCommentKey(media))) || []; }
+  catch { return []; }
+}
+
+function saveComments(media, list) {
+  localStorage.setItem(getCommentKey(media), JSON.stringify(list));
+}
+
+function toggleCommentInput(media) {
+  const wrap = document.getElementById(media + '-comment-input-wrap');
+  if (!wrap) return;
+  const isOpen = wrap.classList.toggle('open');
+  if (isOpen) {
+    const box = document.getElementById(media + '-comment-box');
+    if (box) { box.value = ''; box.focus(); }
+  }
+}
+
+function addComment(media) {
+  const box = document.getElementById(media + '-comment-box');
+  const text = box?.value.trim();
+  if (!text) return;
+  const list = getComments(media);
+  list.push({ id: Date.now(), text });
+  saveComments(media, list);
+  renderCommentList(media);
+  toggleCommentInput(media);
+}
+
+function editComment(media, id) {
+  const list = getComments(media);
+  const item = list.find(c => c.id === id);
+  if (!item) return;
+  const wrap = document.getElementById(media + '-comment-input-wrap');
+  const box = document.getElementById(media + '-comment-box');
+  // 수정 모드: 기존 텍스트 채우고 추가 버튼을 수정 버튼으로 변경
+  box.value = item.text;
+  wrap.classList.add('open');
+  box.focus();
+  const submitBtn = wrap.querySelector('.comment-submit-btn');
+  submitBtn.textContent = '수정 완료';
+  submitBtn.onclick = () => {
+    const newText = box.value.trim();
+    if (!newText) return;
+    item.text = newText;
+    saveComments(media, list);
+    renderCommentList(media);
+    submitBtn.textContent = '추가';
+    submitBtn.onclick = () => addComment(media);
+    toggleCommentInput(media);
+  };
+}
+
+function deleteComment(media, id) {
+  if (!confirm('이 코멘트를 삭제할까요?')) return;
+  const list = getComments(media).filter(c => c.id !== id);
+  saveComments(media, list);
+  renderCommentList(media);
+}
+
+function renderCommentList(media) {
+  const container = document.getElementById(media + '-comment-list');
+  if (!container) return;
+  const list = getComments(media);
+  if (!list.length) { container.innerHTML = ''; return; }
+  // 인사이트와 동일한 넘버링 스타일로 렌더
+  const insightCount = document.getElementById(media + '-insights')?.querySelectorAll('.insight-item').length || 0;
+  container.innerHTML = list.map((c, i) => `
+    <div class="comment-item">
+      <div class="comment-num">${insightCount + i + 1}</div>
+      <div class="comment-text">${c.text.replace(/\n/g, '<br>')}</div>
+      <div class="comment-item-actions">
+        <button class="comment-edit-btn" onclick="editComment('${media}', ${c.id})" title="수정">✏️</button>
+        <button class="comment-del-btn" onclick="deleteComment('${media}', ${c.id})" title="삭제">🗑️</button>
+      </div>
+    </div>`).join('');
+}
+
 function renderInsights(containerId, items) {
   document.getElementById(containerId).innerHTML = items.map((text,i) => `
     <div class="insight-item">
